@@ -1,6 +1,7 @@
 import db from './db.js'
 import express from 'express'
 import cors from 'cors'
+import { defaultValueSchemable } from 'sequelize/types/lib/utils';
 
 const app = express();
 app.use(cors()); 
@@ -34,6 +35,25 @@ app.get('/eventosdestaque', async (req, resp) => {
     }
     catch {
         resp.send( {erro: ""})
+    }
+})
+
+// Usuário 
+
+app.post('/user/create', async(req, resp) => {
+    try {
+        
+    } catch (e) {
+        resp.send( {erro: e.toString()})
+    }
+});
+
+app.get('/user/login', async(req, resp) => {
+    try {
+
+    }
+    catch (e) { 
+        resp.send({erro: e.tostring()})
     }
 })
 
