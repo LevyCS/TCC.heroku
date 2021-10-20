@@ -1,6 +1,7 @@
 import db from './db.js'
 import express from 'express'
 import cors from 'cors'
+import infoc_nws_tb_calendario from './models/infoc_nws_tb_calendario.js';
 
 const app = express();
 app.use(cors()); 
@@ -42,8 +43,11 @@ app.get('/eventosdestaque', async (req, resp) => {
 app.post('/user/create', async(req, resp) => {
     try {
         let json = req.body;
+        if (json.nmUsu == "" || json.nmUsu == null || json.cpf == ""  || json.cpf == null || json.email == "" || json.email == null || json.username == "" || json.username == null || json.senha == "" || json.senha == null || json.nascimento == "" || json.nascimento == null ) 
+            return resp.send( {erro: "Todos os campos são obrigatórios "})
+
         let parts = json.nascimento.split('-');
-        
+
         let validacaoCpf = await db.infoc_nws_tb_usuario.findOne({where: {ds_cpf: json.cpf}})
         if (validacaoCpf != null)
             return resp.send( {erro: "Cpf já cadastrado"})
@@ -75,10 +79,10 @@ app.post('/user/create', async(req, resp) => {
 
 app.get('/user/login/', async(req, resp) => {
     try {
-        let confirm = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: req.query.email, ds_senha: req.query.senha} })
+        let confirm = await db.infoc_nws_tb_usuario.findOne({where: {ds_username: req.query.username, ds_senha: req.query.senha} })
         if (confirm == null) 
             return resp.send( {erro: "usuário não cadastrado"})
-
+        
         let r = await db.infoc_nws_tb_usuario.findOne( {where: { id_usuario: confirm.id_usuario }} );
         resp.send(r);
     }
