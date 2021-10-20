@@ -42,6 +42,7 @@ app.get('/eventosdestaque', async (req, resp) => {
 app.post('/user/create', async(req, resp) => {
     try {
         let json = req.body;
+        let parts = json.nascimento.split('-');
 
         let r = await db.infoc_nws_tb_usuario.create({
             nm_usuario: json.nmUsu,
@@ -49,8 +50,8 @@ app.post('/user/create', async(req, resp) => {
             ds_email: json.email,
             ds_username: json.username,
             ds_senha: json.senha,
-            dt_nascimento: json.nascimento,
-            bt_admin: false
+            dt_nascimento: new Date(parts[0], parts[1] - 1, parts[2]),
+            bt_adm: false
         })
 
         resp.sendStatus(200);
@@ -60,12 +61,17 @@ app.post('/user/create', async(req, resp) => {
     }
 });
 
-app.get('/user/login', async(req, resp) => {
+app.get('/user/login/', async(req, resp) => {
     try {
-
+        let confirm = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: req.query.email, ds_senha: req.query.senha} })
+        if (confirm == null) 
+            return resp.send( {erro: "usuário não cadastrado"})
+            
+        let r = await db.infoc_nws_tb_usuario.findOne( {where: { id_usuario: confirm.id_usuario }} );
+        resp.send(confirm);
     }
     catch (e) { 
-        resp.send({erro: e.tostring()})
+        resp.send({erro: e.toString()})
     }
 })
 
