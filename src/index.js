@@ -1,7 +1,6 @@
 import db from './db.js'
 import express from 'express'
 import cors from 'cors'
-import { defaultValueSchemable } from 'sequelize/types/lib/utils';
 
 const app = express();
 app.use(cors()); 
@@ -42,7 +41,20 @@ app.get('/eventosdestaque', async (req, resp) => {
 
 app.post('/user/create', async(req, resp) => {
     try {
-        
+        let json = req.body;
+
+        let r = await db.infoc_nws_tb_usuario.create({
+            nm_usuario: json.nmUsu,
+            ds_cpf: json.cpf,
+            ds_email: json.email,
+            ds_username: json.username,
+            ds_senha: json.senha,
+            dt_nascimento: json.nascimento,
+            bt_admin: false
+        })
+
+        resp.sendStatus(200);
+
     } catch (e) {
         resp.send( {erro: e.toString()})
     }
