@@ -12,7 +12,7 @@ app.get('/buscadireta/:nmEvento', async (req, resp) => {
         resp.send(r);
     }
     catch {
-        resp.send( {erro: })
+        resp.send( {erro: ""})
     }
 })
 
@@ -23,7 +23,7 @@ app.get('/buscadirecionada/:categoria', async (req, resp) => {
         resp.send(r);
     }
     catch {
-        resp.send( {erro: })
+        resp.send( {erro: ""})
     }
 })
 
@@ -32,14 +32,10 @@ app.get('/eventosdestaque', async (req, resp) => {
        
     }
     catch {
-        resp.send( {erro: })
+        resp.send( {erro: ""})
     }
 })
 
-
-
-
-
 app.listen(process.env.PORT,
-              x => console.log('Server up at port ${process.env.PORT}'))
+              x => console.log(`Server up at port ${process.env.PORT}`))
                                       
