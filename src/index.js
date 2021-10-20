@@ -4,10 +4,11 @@ import cors from 'cors'
 
 const app = express();
 app.use(cors()); 
+app.use(express.json())
 
 app.get('/buscadireta/:nmEvento', async (req, resp) => {
     try {
-        let r = await api.tb_evento.findAll( {where: { nm_evento: req.params.nmEvento}});
+        let r = await db.tb_evento.findAll( {where: { nm_evento: req.params.nmEvento}});
         
         resp.send(r);
     }
