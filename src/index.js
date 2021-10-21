@@ -160,6 +160,15 @@ app.post('/compra/evento/item', async (req,resp) => {
 })
 // ----------->>>
 
+app.get('/relatorios', async (req,resp) => {
+    try {
+
+        
+
+    } catch (e) {
+        resp.send({ erro: e.toString() })
+    }
+})
 
 app.listen(process.env.PORT,
               x => console.log(`Server up at port ${process.env.PORT}`))
