@@ -1,11 +1,13 @@
 import db from './db.js'
 import express from 'express'
 import cors from 'cors'
-import infoc_nws_tb_calendario from './models/infoc_nws_tb_calendario.js';
+import nodemailer from 'nodemailer'
 
 const app = express();
 app.use(cors()); 
 app.use(express.json())
+
+
 
 
 app.get('/buscadireta/:nmEvento', async (req, resp) => {
@@ -25,8 +27,6 @@ app.post('/user/create', async(req, resp) => {
         if (json.nmUsu == "" || json.nmUsu == null || json.cpf == ""  || json.cpf == null || json.email == "" || json.email == null || json.username == "" || json.username == null || json.senha == "" || json.senha == null || json.nascimento == "" || json.nascimento == null ) 
             return resp.send( {erro: "Todos os campos são obrigatórios "})
 
-        let parts = json.nascimento.split('-');
-
         let validacaoCpf = await db.infoc_nws_tb_usuario.findOne({where: {ds_cpf: json.cpf}})
         if (validacaoCpf != null)
             return resp.send( {erro: "Cpf já cadastrado"})
@@ -39,6 +39,7 @@ app.post('/user/create', async(req, resp) => {
         if (validacaoUsername != null)
             return resp.send({ erro: "Username já cadastrado"})
         
+        let parts = json.nascimento.split('-');
         let r = await db.infoc_nws_tb_usuario.create({
             nm_usuario: json.nmUsu,
             ds_cpf: json.cpf,
@@ -68,6 +69,58 @@ app.get('/user/login/', async(req, resp) => {
     catch (e) { 
         resp.send({erro: e.toString()})
     }
+})
+
+app.post('/user/forgotpass', async(req,resp) => {
+    let json = req.body;
+    let code = Math.floor(Math.random() * (9999 - 1000) ) + 1000;
+
+    let r = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: json.email}})
+    if (r == null)  
+        return resp.send( {erro: "Email não cadastrado"})
+
+    const sender = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, 
+        auth: {
+            user: 'nws.tccinfoc@gmail.com',
+            pass: 'nwsinfoc',
+        },
+    });
+
+    let sendEmail = await sender.sendMail({
+        from: '"New Side" <nws.tccinfoc@gmail.com>', // sender address
+        to: json.email, // list of receivers
+        subject: "Código de verificação", // Subject line
+        html:   `<h1> Código de validação: </h1> 
+                <h4> ${code} </h4> ` 
+    })
+
+    const changeCode = async() => {
+        await db.infoc_nws_tb_usuario.update({
+            ds_codigo: code }, {where: {id_usuario: r.id_usuario}
+    })}
+    changeCode();
+
+    resp.sendStatus(200);
+})
+
+app.put('/user/changepass', async(req, resp) => {
+    let { codigo, email, senha } = req.body;
+    
+    let r = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: email}})
+
+    if (codigo != r.ds_codigo || codigo == '' || codigo == null) 
+        return resp.send( {erro: "Código incorreto"})
+
+    let updatePasswordNCod = await db.infoc_nws_tb_usuario.update({ds_senha: senha, ds_codigo: null}, {where: {id_usuario: r.id_usuario}})
+    resp.sendStatus(200)
+})
+
+app.get('/user/getall/test', async (req, resp) => {
+    let r = await db.infoc_nws_tb_usuario.findAll();
+    resp.send(r);
 })
 
 app.get('/buscadireta', async (req,resp) => {
