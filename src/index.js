@@ -6,18 +6,6 @@ const app = express();
 app.use(cors()); 
 app.use(express.json())
 
-
-app.get('/buscadireta/:nmEvento', async (req, resp) => {
-    try {
-        let r = await db.tb_evento.findAll( {where: { nm_evento: req.params.nmEvento}});
-        
-        resp.send(r);
-    }
-    catch {
-        resp.send( {erro: ""})
-    }
-})
-
 app.post('/user/create', async(req, resp) => {
     try {
         let json = req.body;
@@ -77,7 +65,7 @@ app.get('/buscadireta', async (req,resp) => {
     }
 })
 
- // Arrumar 
+
 app.get('/buscadirecionada/:id', async (req,resp) => {
     try {
 
@@ -90,7 +78,6 @@ app.get('/buscadirecionada/:id', async (req,resp) => {
         resp.send ({ erro: e.toString() })
     }
 })
-// ------>>>
 
 
 app.get('/compra/evento/:id', async (req,resp) => {
@@ -103,66 +90,41 @@ app.get('/compra/evento/:id', async (req,resp) => {
         resp.send({ erro: e.toString() });
     }
 })
-// Conferir
 
 app.post ('/compra/evento', async (req, resp) => {
     try {
-        let a = req.body;
+        let { idUsu, situacao, pagamento, compracartao, item } = req.body;
+        let { cartao, titular, cvc, vencimento, cpf } = compracartao;
+        let { idevento, qrcode } = item;
 
-        let r = await db.infoc_nws_tb_venda.create({
-            id_usuario: a.idUsu,
-            ds_situacao: a.situacao,
-            tp_pagamento: a.pagamento
+        let venda = await db.infoc_nws_tb_venda.create({
+            id_usuario: idUsu,
+            ds_situacao: situacao,
+            tp_pagamento: pagamento
         })
 
-        resp.send(r);
+        let cartaodecredito = await db.infoc_nws_tb_cartao.create({
+            id_venda: venda.id_usuario,
+            nr_cartao: cartao,
+            nm_titular: titular,
+            ds_cvc: cvc,
+            dt_vencimento: vencimento,
+            ds_cpf: cpf
+        })
+
+        let vendaitem = await db.infoc_nws_tb_venda_item.create({
+            id_venda: venda.id_usuario,
+            id_evento: idevento,
+            ds_qrcode: qrcode
+        })
+
+        resp.send( "Tudo lindo por aqui!" );
 
     } catch (e) {
         resp.send({ erro: e.toString() })
     }
 
 })
-
-app.post ('/compra/evento/cartao', async (req,resp) => {
-    try {
-
-        let a = req.body;
-        let p = a.pagamento;
-
-        let r = await db.infoc_nws_tb_cartao.create({
-            id_venda: a.idvenda,
-            nr_cartao: a.cartao,
-            nm_titular: a.titular,
-            ds_cvc: a.cvc,
-            dt_vencimento: a.vencimento,
-            ds_cpf: a.cpf
-        })
-
-        resp.send(r);
-
-    } catch(e) {
-        resp.send({ erro: e.toString() })
-    }
-})
-
-app.post('/compra/evento/item', async (req,resp) => {
-    try {
-
-        let a = req.body;
-
-        let r = await db.infoc_nws_tb_venda_item.create({
-            id_venda: a.idvenda,
-            id_evento: a.idevento,
-            ds_qrcode: a.qrcode
-        })
-
-        resp.send(r)
-
-    } catch(e) {
-        resp.send({ erro: e.toString() })
-    }
-})
-// ----------->>>
 
 app.get('/relatorios', async (req,resp) => {
     try {
