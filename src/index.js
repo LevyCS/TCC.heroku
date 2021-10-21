@@ -78,10 +78,12 @@ app.get('/buscadireta', async (req,resp) => {
 })
 
  // Arrumar 
-app.get('/buscadirecionada', async (req,resp) => {
+app.get('/buscadirecionada/:id', async (req,resp) => {
     try {
 
-        let r = await db.infoc_nws_tb_evento.findAll( { where: { ds_categoria: req.query.categoria } } )
+        let categoria = req.params.id;
+
+        let r = await db.infoc_nws_tb_evento.findAll( { where: { id_categoria: categoria } } )
         resp.send(r);
 
     } catch (e) {
@@ -154,6 +156,8 @@ app.post('/compra/evento/item', async (req,resp) => {
             ds_qrcode: a.qrcode
         })
 
+        resp.send(r)
+
     } catch(e) {
         resp.send({ erro: e.toString() })
     }
@@ -163,7 +167,7 @@ app.post('/compra/evento/item', async (req,resp) => {
 app.get('/relatorios', async (req,resp) => {
     try {
 
-        
+
 
     } catch (e) {
         resp.send({ erro: e.toString() })
