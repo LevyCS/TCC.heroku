@@ -70,6 +70,113 @@ app.get('/user/login/', async(req, resp) => {
     }
 })
 
+app.get('/buscadireta', async (req,resp) => {
+    try {
+
+        let r = await db.infoc_nws_tb_evento.findAll( { where: { nm_evento: req.query.evento, ds_elenco: req.query.evento, ds_local: req.query.evento } } )
+        resp.send(r);
+
+    } catch(e) {
+        resp.send({ erro: e.toString()})
+    }
+})
+
+ // Arrumar 
+app.get('/buscadirecionada/:id', async (req,resp) => {
+    try {
+
+        let categoria = req.params.id;
+
+        let r = await db.infoc_nws_tb_evento.findAll( { where: { id_categoria: categoria } } )
+        resp.send(r);
+
+    } catch (e) {
+        resp.send ({ erro: e.toString() })
+    }
+})
+// ------>>>
+
+
+app.get('/compra/evento/:id', async (req,resp) => {
+    try {
+        let id = req.params.id;
+
+        let r = await db.infoc_nws_tb_evento.findAll( { where: { id_evento: id } } )
+        resp.send(r);
+    } catch (e) {
+        resp.send({ erro: e.toString() });
+    }
+})
+// Conferir
+
+app.post ('/compra/evento', async (req, resp) => {
+    try {
+        let a = req.body;
+
+        let r = await db.infoc_nws_tb_venda.create({
+            id_usuario: a.idUsu,
+            ds_situacao: a.situacao,
+            tp_pagamento: a.pagamento
+        })
+
+        resp.send(r);
+
+    } catch (e) {
+        resp.send({ erro: e.toString() })
+    }
+
+})
+
+app.post ('/compra/evento/cartao', async (req,resp) => {
+    try {
+
+        let a = req.body;
+        let p = a.pagamento;
+
+        let r = await db.infoc_nws_tb_cartao.create({
+            id_venda: a.idvenda,
+            nr_cartao: a.cartao,
+            nm_titular: a.titular,
+            ds_cvc: a.cvc,
+            dt_vencimento: a.vencimento,
+            ds_cpf: a.cpf
+        })
+
+        resp.send(r);
+
+    } catch(e) {
+        resp.send({ erro: e.toString() })
+    }
+})
+
+app.post('/compra/evento/item', async (req,resp) => {
+    try {
+
+        let a = req.body;
+
+        let r = await db.infoc_nws_tb_venda_item.create({
+            id_venda: a.idvenda,
+            id_evento: a.idevento,
+            ds_qrcode: a.qrcode
+        })
+
+        resp.send(r)
+
+    } catch(e) {
+        resp.send({ erro: e.toString() })
+    }
+})
+// ----------->>>
+
+app.get('/relatorios', async (req,resp) => {
+    try {
+
+
+
+    } catch (e) {
+        resp.send({ erro: e.toString() })
+    }
+})
 
 app.listen(process.env.PORT,
               x => console.log(`Server up at port ${process.env.PORT}`))
