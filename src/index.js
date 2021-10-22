@@ -71,52 +71,61 @@ app.get('/user/login/', async(req, resp) => {
     }
 })
 
-app.post('/user/forgotpass', async(req,resp) => {
-    let json = req.body;
-    let code = Math.floor(Math.random() * (9999 - 1000) ) + 1000;
+app.post('/user/forgotpassword', async(req,resp) => {
+    try {
+        let json = req.body;
+        let code = Math.floor(Math.random() * (9999 - 1000) ) + 1000;
+    
+        if (json.email == null || json.email == '') 
+            return resp.send( {erro: "Email obrigatório"})
 
-    let r = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: json.email}})
-    if (r == null)  
-        return resp.send( {erro: "Email não cadastrado"})
-
-    const sender = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, 
-        auth: {
-            user: 'nws.tccinfoc@gmail.com',
-            pass: 'nwsinfoc',
-        },
-    });
-
-    const sendEmail = async() => await sender.sendMail({
-        from: '"New Side" <nws.tccinfoc@gmail.com>', // sender address
-        to: json.email, // list of receivers
-        subject: "Código de verificação", // Subject line
-        html:   `<h1> Código de validação: </h1> 
-                <h4> ${code} </h4> ` 
-    })
-    sendEmail();
-
-    const changeCode = async() => {
-        await db.infoc_nws_tb_usuario.update({
-            ds_codigo: code }, {where: {id_usuario: r.id_usuario}
-    })}
-    changeCode();
-
-    resp.sendStatus(200);
+        let r = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: json.email}})
+        if (r == null)  
+            return resp.send( {erro: "Email não cadastrado"})
+    
+        const sender = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false, 
+            auth: {
+                user: 'nws.tccinfoc@gmail.com',
+                pass: 'nwsinfoc',
+            },
+        });
+    
+        const sendEmail = async() => await sender.sendMail({
+            from: '"New Side" <nws.tccinfoc@gmail.com>', // sender address
+            to: json.email, // list of receivers
+            subject: "Código de verificação", // Subject line
+            html:   `<h1> Código de validação: </h1> 
+                    <h4> ${code} </h4> ` 
+        })
+        sendEmail();
+    
+        const changeCode = async() => {
+            await db.infoc_nws_tb_usuario.update({
+                ds_codigo: code }, {where: {id_usuario: r.id_usuario}
+        })}
+        changeCode();
+    
+        resp.sendStatus(200);
+    } catch (e) { resp.send( { erro: e.toString()})}
 })
 
 app.put('/user/changepassword', async(req, resp) => {
-    let { codigo, email, senha } = req.body;
-    
-    let r = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: email}})
+    try {
+        let { codigo, email, senha } = req.body;
+        
+        
 
-    if (codigo != r.ds_codigo || codigo == '' || codigo == null) 
+        let r = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: email}})
+
+        if (codigo != r.ds_codigo || codigo == '' || codigo == null) 
         return resp.send( {erro: "Código incorreto"})
-
-    let updatePasswordNCod = await db.infoc_nws_tb_usuario.update({ds_senha: senha, ds_codigo: null}, {where: {id_usuario: r.id_usuario}})
-    resp.sendStatus(200)
+    
+        let updatePasswordNCod = await db.infoc_nws_tb_usuario.update({ds_senha: senha, ds_codigo: null}, {where: {id_usuario: r.id_usuario}})
+        resp.sendStatus(200)
+    } catch (e) { resp.send( { erro: e.toString()})}
 })
 
 app.get('/user/getall/test', async (req, resp) => {
