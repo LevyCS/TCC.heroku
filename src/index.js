@@ -59,9 +59,12 @@ app.post('/user/create', async(req, resp) => {
 
 app.get('/user/login/', async(req, resp) => {
     try {
-        let confirm = await db.infoc_nws_tb_usuario.findOne({where: {ds_username: req.query.username, ds_senha: req.query.senha} })
+        let confirm = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: req.query.mail}});
         if (confirm == null) 
-            return resp.send( {erro: "usuário não cadastrado"})
+            return resp.send( {erro: "Usuário não cadastrado"})
+    
+        if (confirm.ds_senha != req.query.senha)
+            return resp.send( {erro: "Senha incorreta "})
         
         let r = await db.infoc_nws_tb_usuario.findOne( {where: { id_usuario: confirm.id_usuario }} );
         resp.send(r);
@@ -116,8 +119,6 @@ app.put('/user/changepassword', async(req, resp) => {
     try {
         let { codigo, email, senha } = req.body;
         
-        
-
         let r = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: email}})
 
         if (codigo != r.ds_codigo || codigo == '' || codigo == null) 
