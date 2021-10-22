@@ -89,13 +89,14 @@ app.post('/user/forgotpass', async(req,resp) => {
         },
     });
 
-    let sendEmail = await sender.sendMail({
+    const sendEmail = async() => await sender.sendMail({
         from: '"New Side" <nws.tccinfoc@gmail.com>', // sender address
         to: json.email, // list of receivers
         subject: "Código de verificação", // Subject line
         html:   `<h1> Código de validação: </h1> 
                 <h4> ${code} </h4> ` 
     })
+    sendEmail();
 
     const changeCode = async() => {
         await db.infoc_nws_tb_usuario.update({
@@ -106,7 +107,7 @@ app.post('/user/forgotpass', async(req,resp) => {
     resp.sendStatus(200);
 })
 
-app.put('/user/changepass', async(req, resp) => {
+app.put('/user/changepassword', async(req, resp) => {
     let { codigo, email, senha } = req.body;
     
     let r = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: email}})
