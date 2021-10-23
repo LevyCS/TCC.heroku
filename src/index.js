@@ -1,10 +1,13 @@
 import db from './db.js'
 import express from 'express'
 import cors from 'cors'
+import nodemailer from 'nodemailer'
 
 const app = express();
 app.use(cors()); 
 app.use(express.json())
+
+
 
 
 app.get('/buscadireta/:nmEvento', async (req, resp) => {
@@ -21,8 +24,9 @@ app.get('/buscadireta/:nmEvento', async (req, resp) => {
 app.post('/user/create', async(req, resp) => {
     try {
         let json = req.body;
-        let parts = json.nascimento.split('-');
-        
+        if (json.nmUsu == "" || json.nmUsu == null || json.cpf == ""  || json.cpf == null || json.email == "" || json.email == null || json.username == "" || json.username == null || json.senha == "" || json.senha == null || json.nascimento == "" || json.nascimento == null ) 
+            return resp.send( {erro: "Todos os campos são obrigatórios "})
+
         let validacaoCpf = await db.infoc_nws_tb_usuario.findOne({where: {ds_cpf: json.cpf}})
         if (validacaoCpf != null)
             return resp.send( {erro: "Cpf já cadastrado"})
@@ -35,6 +39,7 @@ app.post('/user/create', async(req, resp) => {
         if (validacaoUsername != null)
             return resp.send({ erro: "Username já cadastrado"})
         
+        let parts = json.nascimento.split('-');
         let r = await db.infoc_nws_tb_usuario.create({
             nm_usuario: json.nmUsu,
             ds_cpf: json.cpf,
@@ -54,16 +59,79 @@ app.post('/user/create', async(req, resp) => {
 
 app.get('/user/login/', async(req, resp) => {
     try {
-        let confirm = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: req.query.email, ds_senha: req.query.senha} })
+        let confirm = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: req.query.mail}});
         if (confirm == null) 
-            return resp.send( {erro: "usuário não cadastrado"})
-
+            return resp.send( {erro: "Usuário não cadastrado"})
+    
+        if (confirm.ds_senha != req.query.senha)
+            return resp.send( {erro: "Senha incorreta "})
+        
         let r = await db.infoc_nws_tb_usuario.findOne( {where: { id_usuario: confirm.id_usuario }} );
         resp.send(r);
     }
     catch (e) { 
         resp.send({erro: e.toString()})
     }
+})
+
+app.post('/user/forgotpassword', async(req,resp) => {
+    try {
+        let json = req.body;
+        let code = Math.floor(Math.random() * (9999 - 1000) ) + 1000;
+    
+        if (json.email == null || json.email == '') 
+            return resp.send( {erro: "Email obrigatório"})
+
+        let r = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: json.email}})
+        if (r == null)  
+            return resp.send( {erro: "Email não cadastrado"})
+    
+        const sender = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false, 
+            auth: {
+                user: 'nws.tccinfoc@gmail.com',
+                pass: 'nwsinfoc',
+            },
+        });
+    
+        const sendEmail = async() => await sender.sendMail({
+            from: '"New Side" <nws.tccinfoc@gmail.com>', // sender address
+            to: json.email, // list of receivers
+            subject: "Código de verificação", // Subject line
+            html:   `<h1> Código de validação: </h1> 
+                    <h4> ${code} </h4> ` 
+        })
+        sendEmail();
+    
+        const changeCode = async() => {
+            await db.infoc_nws_tb_usuario.update({
+                ds_codigo: code }, {where: {id_usuario: r.id_usuario}
+        })}
+        changeCode();
+    
+        resp.sendStatus(200);
+    } catch (e) { resp.send( { erro: e.toString()})}
+})
+
+app.put('/user/changepassword', async(req, resp) => {
+    try {
+        let { codigo, email, senha } = req.body;
+        
+        let r = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: email}})
+
+        if (codigo != r.ds_codigo || codigo == '' || codigo == null) 
+        return resp.send( {erro: "Código incorreto"})
+    
+        let updatePasswordNCod = await db.infoc_nws_tb_usuario.update({ds_senha: senha, ds_codigo: null}, {where: {id_usuario: r.id_usuario}})
+        resp.sendStatus(200)
+    } catch (e) { resp.send( { erro: e.toString()})}
+})
+
+app.get('/user/getall/test', async (req, resp) => {
+    let r = await db.infoc_nws_tb_usuario.findAll();
+    resp.send(r);
 })
 
 app.get('/buscadireta', async (req,resp) => {
@@ -77,7 +145,7 @@ app.get('/buscadireta', async (req,resp) => {
     }
 })
 
- // Arrumar 
+
 app.get('/buscadirecionada/:id', async (req,resp) => {
     try {
 
@@ -90,7 +158,6 @@ app.get('/buscadirecionada/:id', async (req,resp) => {
         resp.send ({ erro: e.toString() })
     }
 })
-// ------>>>
 
 
 app.get('/compra/evento/:id', async (req,resp) => {
@@ -103,66 +170,41 @@ app.get('/compra/evento/:id', async (req,resp) => {
         resp.send({ erro: e.toString() });
     }
 })
-// Conferir
 
 app.post ('/compra/evento', async (req, resp) => {
     try {
-        let a = req.body;
+        let { idUsu, situacao, pagamento, compracartao, item } = req.body;
+        let { cartao, titular, cvc, vencimento, cpf } = compracartao;
+        let { idevento, qrcode } = item;
 
-        let r = await db.infoc_nws_tb_venda.create({
-            id_usuario: a.idUsu,
-            ds_situacao: a.situacao,
-            tp_pagamento: a.pagamento
+        let venda = await db.infoc_nws_tb_venda.create({
+            id_usuario: idUsu,
+            ds_situacao: situacao,
+            tp_pagamento: pagamento
         })
 
-        resp.send(r);
+        let cartaodecredito = await db.infoc_nws_tb_cartao.create({
+            id_venda: venda.id_usuario,
+            nr_cartao: cartao,
+            nm_titular: titular,
+            ds_cvc: cvc,
+            dt_vencimento: vencimento,
+            ds_cpf: cpf
+        })
+
+        let vendaitem = await db.infoc_nws_tb_venda_item.create({
+            id_venda: venda.id_usuario,
+            id_evento: idevento,
+            ds_qrcode: qrcode
+        })
+
+        resp.send( "Tudo lindo por aqui!" );
 
     } catch (e) {
         resp.send({ erro: e.toString() })
     }
 
 })
-
-app.post ('/compra/evento/cartao', async (req,resp) => {
-    try {
-
-        let a = req.body;
-        let p = a.pagamento;
-
-        let r = await db.infoc_nws_tb_cartao.create({
-            id_venda: a.idvenda,
-            nr_cartao: a.cartao,
-            nm_titular: a.titular,
-            ds_cvc: a.cvc,
-            dt_vencimento: a.vencimento,
-            ds_cpf: a.cpf
-        })
-
-        resp.send(r);
-
-    } catch(e) {
-        resp.send({ erro: e.toString() })
-    }
-})
-
-app.post('/compra/evento/item', async (req,resp) => {
-    try {
-
-        let a = req.body;
-
-        let r = await db.infoc_nws_tb_venda_item.create({
-            id_venda: a.idvenda,
-            id_evento: a.idevento,
-            ds_qrcode: a.qrcode
-        })
-
-        resp.send(r)
-
-    } catch(e) {
-        resp.send({ erro: e.toString() })
-    }
-})
-// ----------->>>
 
 app.get('/relatorios', async (req,resp) => {
     try {
