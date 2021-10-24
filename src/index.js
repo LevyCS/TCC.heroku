@@ -21,6 +21,7 @@ app.get('/buscadireta/:nmEvento', async (req, resp) => {
     }
 })
 
+// Autentication
 app.post('/user/create', async(req, resp) => {
     try {
         let json = req.body;
@@ -134,6 +135,63 @@ app.get('/user/getall/test', async (req, resp) => {
     resp.send(r);
 })
 
+/////
+
+// Crud in events 
+app.get('/crud/events', async(req, resp) => {
+    let events = await db.infoc_nws_tb_evento.findAll({where: {bt_ativo: true}, })
+})
+
+app.post('/crud/events', async(req, resp) => {
+    try {
+        let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec} = req.body;
+        categoria = categoria.toLowerCase();
+        
+        let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}})
+    
+        let validate = [nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec]
+        if (validate.some(item => {
+            item == "" || item == null
+        })) {
+            return resp.send( {erro: "Todos os campos são obrigatórios"} )
+        }
+
+        if(isNaN(valorIngresso) || isNaN(classificacao)) {
+
+        }
+
+
+        let createEvent = await db.infoc_nws_tb_evento.create({
+            nm_evento: nmEvento,
+            id_categoria: category.id_categoria,
+            ds_duracao: duracao,
+            ds_classificacao: classificacao,
+            vl_ingresso: valorIngresso,
+            ds_local: local,
+            dt_min: dtMin,
+            dt_max: dtMax,
+            ds_elenco: elenco,
+            ds_evento: descEvento, 
+            img_capa: imgCapa,
+            img_fundo: imgFundo,
+            img_sec: imgSec,
+            bt_ativo: true,
+            dt_inclusao: new Date()
+        })
+      
+        resp.sendStatus(200);
+        
+    } catch (e) {
+        resp.send( { erro: e.toString()})
+    }
+})
+
+app.get('/crud/events/getall', async(req, resp) => {
+    let r = await db.infoc_nws_tb_evento.findAll()
+    resp.send(r);
+})
+
+////
 app.get('/buscadireta', async (req,resp) => {
     try {
 
