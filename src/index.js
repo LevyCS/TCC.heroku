@@ -216,6 +216,46 @@ app.get('/relatorios', async (req,resp) => {
     }
 })
 
+app.get('/user/management/', async (req,resp) => {
+
+    function OderManagement (order) {
+        switch (order) {
+            case 'Listar em ordem crescente': return ['nm_usuario', 'asc']  
+            case 'Listar em ordem decrescente': return ['nm_usuario', 'desc']  
+            case 'Listar administradores': return ['ds_adm', 'true']  
+        
+            default: return ['nm_usuario', 'asc']
+        }   
+    }
+    
+   try {
+
+       let criteria = OrderManagement(req.query.order)
+       const usu = await db.infoc_nws_tb_usuario.findAll({ where: { id_usuario: nm_usuario }}) 
+       const adm = await db.infoc_nws_tb_usuario.findAll({ where: { id_usuario: ds_adm }})
+
+       const list = await db.infoc_nws_tb_usuario.findAll({
+           attributes: [
+               ['nm_usuario', 'usuario']
+               ['ds_email', 'email']
+           ], 
+           order: {
+               criteria
+           }
+       })
+
+       if(criteria == 'Listar em ordem crescente'|| 'Listar em ordem decrescente') 
+           return usu
+       
+       if (criteria == 'Listar administratores') 
+           return adm
+       
+       resp.send(list)
+   } catch (e) { 
+       resp.send({ erro: e.toString() })
+   }
+})
+
 app.listen(process.env.PORT,
               x => console.log(`Server up at port ${process.env.PORT}`))
                                       
