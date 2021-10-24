@@ -40,14 +40,13 @@ app.post('/user/create', async(req, resp) => {
         if (validacaoUsername != null)
             return resp.send({ erro: "Username já cadastrado"})
         
-        let parts = json.nascimento.split('-');
         let r = await db.infoc_nws_tb_usuario.create({
             nm_usuario: json.nmUsu,
             ds_cpf: json.cpf,
             ds_email: json.email,
             ds_username: json.username,
             ds_senha: json.senha,
-            dt_nascimento: new Date(parts[0], parts[1] - 1, parts[2]),
+            dt_nascimento: json.nascimento,
             bt_adm: false
         })
 
@@ -156,10 +155,8 @@ app.post('/crud/events', async(req, resp) => {
             return resp.send( {erro: "Todos os campos são obrigatórios"} )
         }
 
-        if(isNaN(valorIngresso) || isNaN(classificacao)) {
-
-        }
-
+        if (isNaN(valorIngresso) || valorIngresso <= 0)
+            return resp.send( { erro: "O Valor do ingresso deve ser um número positivo"})
 
         let createEvent = await db.infoc_nws_tb_evento.create({
             nm_evento: nmEvento,
