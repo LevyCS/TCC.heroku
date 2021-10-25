@@ -1,5 +1,5 @@
 import db from './db.js'
-import express from 'express'
+import express, { application } from 'express'
 import cors from 'cors'
 import nodemailer from 'nodemailer'
 
@@ -138,9 +138,8 @@ app.post('/crud/events', async(req, resp) => {
         let validate = [nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec]
         if (validate.some(item => {
             item == "" || item == null
-        })) {
+        }))
             return resp.send( {erro: "Todos os campos são obrigatórios"} )
-        }
 
         if (isNaN(valorIngresso) || valorIngresso <= 0)
             return resp.send( { erro: "O Valor do ingresso deve ser um número positivo"})
@@ -167,6 +166,55 @@ app.post('/crud/events', async(req, resp) => {
         
     } catch (e) {
         resp.send( { erro: e.toString()})
+    }
+})
+
+app.put('/crud/events', async (req, resp) => {
+    try {
+        let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec} = req.body;
+        categoria = categoria.toLowerCase();
+        
+        let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}})
+    
+        let validate = [nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec]
+        if (validate.some(item => {
+            item == "" || item == null
+        }))
+            return resp.send( {erro: "Todos os campos são obrigatórios"} )
+
+        if (isNaN(valorIngresso) || valorIngresso <= 0)
+            return resp.send( { erro: "O Valor do ingresso deve ser um número positivo"})
+
+        let updateEvent = await db.infoc_nws_tb_evento.update({
+            nm_evento: nmEvento,
+            id_categoria: category.id_categoria,
+            ds_duracao: duracao,
+            ds_classificacao: classificacao,
+            vl_ingresso: valorIngresso,
+            ds_local: local,
+            dt_min: dtMin,
+            dt_max: dtMax,
+            ds_elenco: elenco,
+            ds_evento: descEvento, 
+            img_capa: imgCapa,
+            img_fundo: imgFundo,
+            img_sec: imgSec,
+        })
+
+        resp.sendStatus(200);
+    } catch (e) {
+        resp.send( {erro: e.toString()})
+    }
+})
+
+app.delete('/crud/events', async(req, resp) => {
+    try {
+        let r = await db.infoc_nws_tb_evento.destroy({
+            where: {id_evento: req.query.id}
+        })
+        resp.sendStatus(200);
+    } catch (e) {
+        resp.send( {erro: e.toString()})
     }
 })
 
