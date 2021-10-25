@@ -198,8 +198,9 @@ app.put('/crud/events', async (req, resp) => {
             ds_evento: descEvento, 
             img_capa: imgCapa,
             img_fundo: imgFundo,
-            img_sec: imgSec,
-        })
+            img_sec: imgSec },
+            {where: {id_evento: req.query.id}}   
+        )
 
         resp.sendStatus(200);
     } catch (e) {
