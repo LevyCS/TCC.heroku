@@ -8,19 +8,6 @@ app.use(cors());
 app.use(express.json())
 
 
-
-
-app.get('/buscadireta/:nmEvento', async (req, resp) => {
-    try {
-        let r = await db.tb_evento.findAll( {where: { nm_evento: req.params.nmEvento}});
-        
-        resp.send(r);
-    }
-    catch {
-        resp.send( {erro: ""})
-    }
-})
-
 // Autentication
 app.post('/user/create', async(req, resp) => {
     try {
@@ -192,7 +179,7 @@ app.get('/crud/events/getall', async(req, resp) => {
 app.get('/buscadireta', async (req,resp) => {
     try {
 
-        let r = await db.infoc_nws_tb_evento.findAll( { where: { nm_evento: req.query.evento, ds_elenco: req.query.evento, ds_local: req.query.evento } } )
+        let r = await db.infoc_nws_tb_evento.findAll( { where: { nm_evento: req.params.evento, ds_elenco: req.params.evento, ds_local: req.params.evento } } )
         resp.send(r);
 
     } catch(e) {
@@ -201,10 +188,10 @@ app.get('/buscadireta', async (req,resp) => {
 })
 
 
-app.get('/buscadirecionada/:id', async (req,resp) => {
+app.get('/buscadirecionada', async (req,resp) => {
     try {
 
-        let categoria = req.params.id;
+        let categoria = req.query.id;
 
         let r = await db.infoc_nws_tb_evento.findAll( { where: { id_categoria: categoria } } )
         resp.send(r);
