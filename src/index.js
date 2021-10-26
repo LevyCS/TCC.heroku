@@ -1,11 +1,11 @@
 import db from './db.js'
-import express, { application } from 'express'
+import express from 'express'
 import cors from 'cors'
 import nodemailer from 'nodemailer'
 
 const app = express();
 app.use(cors()); 
-app.use(express.json())
+app.use(express.json());
 
 
 // Autentication
@@ -224,7 +224,7 @@ app.get('/crud/events/getall', async(req, resp) => {
     resp.send(r);
 })
 
-
+// About search
 app.get('/buscadireta', async (req,resp) => {
     try {
 
@@ -249,8 +249,11 @@ app.get('/buscadirecionada', async (req,resp) => {
         resp.send ({ erro: e.toString() })
     }
 })
+//
 
 
+
+// For the buy page
 app.get('/compra/evento/:id', async (req,resp) => {
     try {
         let id = req.params.id;
@@ -296,7 +299,9 @@ app.post ('/compra/evento', async (req, resp) => {
     }
 
 })
+//
 
+//Reports
 app.get('/relatorios', async (req,resp) => {
     try {
 
@@ -306,7 +311,7 @@ app.get('/relatorios', async (req,resp) => {
         resp.send({ erro: e.toString() })
     }
 })
-
+//
 
 app.listen(process.env.PORT,
               x => console.log(`Server up at port ${process.env.PORT}`))
