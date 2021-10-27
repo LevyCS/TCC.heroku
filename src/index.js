@@ -250,7 +250,7 @@ app.get('/crud/events/getall', async(req, resp) => {
     resp.send(r);
 })
 
-
+// Search
 app.get('/buscadireta', async (req,resp) => {
     try {
         let r = await db.infoc_nws_tb_evento.findAll( { where: { nm_evento: req.params.evento, ds_elenco: req.params.evento, ds_local: req.params.evento } } )
