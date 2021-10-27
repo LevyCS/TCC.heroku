@@ -128,40 +128,45 @@ app.get('/user/getall/test', async (req, resp) => {
 
 // Crud in events 
 app.get('/crud/events', async(req, resp) => {
-    let {nome, categoria} = req.query;
+    try {
+        let {nome, categoria} = req.query;
     
-    function filterChoose() {
-        if(categoria != null && categoria != "")
-            return {'$id_categoria_infoc_nws_tb_categorium.ds_tema$': categoria, bt_ativo: true};
-        else if (nome != null && nome != "")
-            return {nm_evento: {[Op.like]: `%${nome}%`}, bt_ativo: true};
-        else {
-            return {bt_ativo: true}
-        }
-    }
-
-    let events = await db.infoc_nws_tb_evento.findAll({
-        where: filterChoose(),
-        include: [
-            {
-                model: db.infoc_nws_tb_categoria,
-                as: 'id_categoria_infoc_nws_tb_categorium',
-                required: true
+        function filterChoose() {
+            if(categoria != null && categoria != "")
+                return {'$id_categoria_infoc_nws_tb_categorium.ds_tema$': categoria, bt_ativo: true};
+            else if (nome != null && nome != "")
+                return {nm_evento: {[Op.like]: `%${nome}%`}, bt_ativo: true};
+            else {
+                return {bt_ativo: true}
             }
-        ]
-    })
+        }
+    
+        let events = await db.infoc_nws_tb_evento.findAll({
+            where: filterChoose(),
+            include: [
+                {
+                    model: db.infoc_nws_tb_categoria,
+                    as: 'id_categoria_infoc_nws_tb_categorium',
+                    required: true
+                }
+            ]
+        })
+    
+        resp.send(events)
 
-    resp.send(events)
+    } catch (e) {
+        resp.send( {erro: e.toString()})
+    }
 })
 
 app.post('/crud/events', async(req, resp) => {
     try {
-        let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec} = req.body;
+        let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, genero, imgCapa, imgFundo, imgSec } = req.body;
         categoria = categoria.toLowerCase();
         
         let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}});
     
-        let validate = [nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec]
+        let validate = [nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, genero, imgCapa, imgFundo, imgSec]
         if (validate.some(item => {
             item == "" || item == null
         }))
@@ -184,6 +189,7 @@ app.post('/crud/events', async(req, resp) => {
             img_capa: imgCapa,
             img_fundo: imgFundo,
             img_sec: imgSec,
+            ds_genero: genero,
             bt_ativo: true,
             dt_inclusao: new Date()
         })
