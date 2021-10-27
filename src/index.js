@@ -3,10 +3,13 @@ import express, { application } from 'express'
 import cors from 'cors'
 import nodemailer from 'nodemailer'
 
+
+import Sequelize from 'sequelize';
+const { Op, col, fn } = Sequelize;
+
 const app = express();
 app.use(cors()); 
 app.use(express.json())
-
 
 // Autentication
 app.post('/user/create', async(req, resp) => {
@@ -125,7 +128,30 @@ app.get('/user/getall/test', async (req, resp) => {
 
 // Crud in events 
 app.get('/crud/events', async(req, resp) => {
-    let events = await db.infoc_nws_tb_evento.findAll({where: {bt_ativo: true}, })
+    let {nome, categoria} = req.query;
+    
+    function filterChoose() {
+        if(categoria != null && categoria != "")
+            return {'$id_categoria_infoc_nws_tb_categorium.ds_tema$': categoria, bt_ativo: true};
+        else if (nome != null && nome != "")
+            return {nm_evento: {[Op.like]: `%${nome}%`}, bt_ativo: true};
+        else {
+            return {bt_ativo: true}
+        }
+    }
+
+    let events = await db.infoc_nws_tb_evento.findAll({
+        where: filterChoose(),
+        include: [
+            {
+                model: db.infoc_nws_tb_categoria,
+                as: 'id_categoria_infoc_nws_tb_categorium',
+                required: true
+            }
+        ]
+    })
+
+    resp.send(events)
 })
 
 app.post('/crud/events', async(req, resp) => {
@@ -133,7 +159,7 @@ app.post('/crud/events', async(req, resp) => {
         let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec} = req.body;
         categoria = categoria.toLowerCase();
         
-        let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}})
+        let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}});
     
         let validate = [nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec]
         if (validate.some(item => {
@@ -225,9 +251,8 @@ app.get('/crud/events/getall', async(req, resp) => {
 })
 
 
-app.get('/buscadireta', async (req,resp) => {
+app.get('/buscadireta/:sala', async (req,resp) => {
     try {
-
         let r = await db.infoc_nws_tb_evento.findAll( { where: { nm_evento: req.params.evento, ds_elenco: req.params.evento, ds_local: req.params.evento } } )
         resp.send(r);
 
@@ -306,6 +331,7 @@ app.get('/relatorios', async (req,resp) => {
         resp.send({ erro: e.toString() })
     }
 })
+
 
 
 app.listen(process.env.PORT,
