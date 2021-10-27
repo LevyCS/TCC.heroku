@@ -1,5 +1,5 @@
 import db from './db.js'
-import express, { application } from 'express'
+import express from 'express'
 import cors from 'cors'
 import nodemailer from 'nodemailer'
 
@@ -9,7 +9,7 @@ const { Op, col, fn } = Sequelize;
 
 const app = express();
 app.use(cors()); 
-app.use(express.json())
+app.use(express.json());
 
 // Autentication
 app.post('/user/create', async(req, resp) => {
@@ -251,7 +251,7 @@ app.get('/crud/events/getall', async(req, resp) => {
 })
 
 
-app.get('/buscadireta/:sala', async (req,resp) => {
+app.get('/buscadireta', async (req,resp) => {
     try {
         let r = await db.infoc_nws_tb_evento.findAll( { where: { nm_evento: req.params.evento, ds_elenco: req.params.evento, ds_local: req.params.evento } } )
         resp.send(r);
@@ -274,8 +274,11 @@ app.get('/buscadirecionada', async (req,resp) => {
         resp.send ({ erro: e.toString() })
     }
 })
+//
 
 
+
+// For the buy page
 app.get('/compra/evento/:id', async (req,resp) => {
     try {
         let id = req.params.id;
@@ -321,7 +324,9 @@ app.post ('/compra/evento', async (req, resp) => {
     }
 
 })
+//
 
+//Reports
 app.get('/relatorios', async (req,resp) => {
     try {
 
@@ -331,7 +336,7 @@ app.get('/relatorios', async (req,resp) => {
         resp.send({ erro: e.toString() })
     }
 })
-
+//
 
 
 app.listen(process.env.PORT,
