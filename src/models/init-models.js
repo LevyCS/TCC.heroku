@@ -21,6 +21,7 @@ export default function initModels(sequelize) {
   const infoc_nws_tb_venda = _infoc_nws_tb_venda.init(sequelize, DataTypes);
   const infoc_nws_tb_venda_item = _infoc_nws_tb_venda_item.init(sequelize, DataTypes);
 
+
   infoc_nws_tb_calendario_item.belongsTo(infoc_nws_tb_calendario, { as: "id_calendario_infoc_nws_tb_calendario", foreignKey: "id_calendario"});
   infoc_nws_tb_calendario.hasMany(infoc_nws_tb_calendario_item, { as: "infoc_nws_tb_calendario_items", foreignKey: "id_calendario"});
   infoc_nws_tb_evento.belongsTo(infoc_nws_tb_categoria, { as: "id_categoria_infoc_nws_tb_categorium", foreignKey: "id_categoria"});

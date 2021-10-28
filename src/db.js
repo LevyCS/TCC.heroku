@@ -4,9 +4,10 @@ const sequelize = new Sequelize(
     'mysql_17753_nsftcc',
     'nsftcc',
     'nsf@tcc', {
-    host: 'my01.winhost.com',
-    dialect: 'mysql',
-    logging: console.log()
+        host: 'my01.winhost.com',
+        dialect: 'mysql',
+        logging: console.log
     });
+
 const db = initdb(sequelize);
 export default db;
