@@ -289,7 +289,27 @@ app.get('/crud/events/getall', async(req, resp) => {
 
 app.get('/buscadireta', async (req,resp) => {
     try {
-        let r = await db.infoc_nws_tb_evento.findAll( { where: { nm_evento: req.params.evento, ds_elenco: req.params.evento, ds_local: req.params.evento } } )
+        let r = await db.infoc_nws_tb_evento.findAll( 
+            { where: {
+                [Op.or]: [
+                    { 'nm_evento': {[Op.like]: `%${req.query.search}%` }},
+                    { 'ds_elenco': {[Op.like]: `%${req.query.search}%` }},
+                    { 'ds_evento': {[Op.like]: `%${req.query.search}%` }},
+                    { 'ds_classificacao': {[Op.like]: `%${req.query.search}%` }},
+                    { 'ds_genero': {[Op.like]: `%${req.query.search}%` }}
+                ],
+
+                bt_ativo: true
+            },
+            attributes: [
+                ['nm_evento', 'nome do evento'],
+                ['ds_elenco', 'elenco'],
+                ['ds_classificacao', 'classificacao'],
+                ['ds_duracao', 'duracao'],
+                ['ds_evento', 'sinopse'],
+                ['ds_genero', 'gênero']
+            ]
+         });
         resp.send(r);
 
     } catch(e) {
@@ -303,7 +323,18 @@ app.get('/buscadirecionada', async (req,resp) => {
 
         let categoria = req.query.id;
 
-        let r = await db.infoc_nws_tb_evento.findAll( { where: { id_categoria: categoria } } )
+        let r = await db.infoc_nws_tb_evento.findAll( 
+            { where: 
+                { id_categoria: categoria, 
+                    bt_ativo: true },
+                attributes: [
+                    ['nm_evento', 'nome do evento'],
+                    ['ds_elenco', 'elenco'],
+                    ['ds_classificacao', 'classificacao'],
+                    ['ds_duracao', 'duracao'],
+                    ['ds_evento', 'sinopse'],
+                ]
+            });
         resp.send(r);
 
     } catch (e) {
