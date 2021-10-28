@@ -148,7 +148,19 @@ app.get('/crud/events', async(req, resp) => {
                     model: db.infoc_nws_tb_categoria,
                     as: 'id_categoria_infoc_nws_tb_categorium',
                     required: true
-                }
+                },
+                {
+                    model: db.infoc_nws_tb_calendario,
+                    as: 'infoc_nws_tb_calendarios',
+                    required: true,
+                    include: [
+                        {
+                            model: db.infoc_nws_tb_calendario_item,
+                            as: 'infoc_nws_tb_calendario_items',
+                            required: true
+                        }
+                    ]
+                },
             ]
         })
     
@@ -162,6 +174,7 @@ app.get('/crud/events', async(req, resp) => {
 app.post('/crud/events', async(req, resp) => {
     try {
         let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, genero, imgCapa, imgFundo, imgSec } = req.body;
+        
         categoria = categoria.toLowerCase();
         
         let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}});
@@ -193,6 +206,23 @@ app.post('/crud/events', async(req, resp) => {
             bt_ativo: true,
             dt_inclusao: new Date()
         })
+
+        let createCalendary = req.body.datas.map(async item => {
+            let dates = await db.infoc_nws_tb_calendario.create({
+                id_evento: createEvent.id_evento,
+                dt_evento: item.data
+            })
+
+            item.horarios.map(async i => {
+                await db.infoc_nws_tb_calendario_item.create({
+                    id_calendario: dates.id_calendario,
+                    hr_evento: i.hora
+                })
+            })
+        }) 
+
+        
+     
       
         resp.sendStatus(200);
         
