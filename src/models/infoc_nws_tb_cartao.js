@@ -22,10 +22,6 @@ export default class infoc_nws_tb_cartao extends Model {
       type: DataTypes.STRING(255),
       allowNull: true
     },
-    nm_cartao: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
     ds_cvc: {
       type: DataTypes.INTEGER,
       allowNull: true
@@ -35,6 +31,10 @@ export default class infoc_nws_tb_cartao extends Model {
       allowNull: true
     },
     ds_cpf: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
+    nm_titular: {
       type: DataTypes.STRING(255),
       allowNull: true
     }

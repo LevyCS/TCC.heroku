@@ -6,23 +6,13 @@ import Sequelize from 'sequelize'
 
 const { Op, fn, col } = Sequelize;
 
+
+import Sequelize from 'sequelize';
+const { Op, col, fn } = Sequelize;
+
 const app = express();
 app.use(cors()); 
-app.use(express.json())
-
-
-
-
-app.get('/buscadireta/:nmEvento', async (req, resp) => {
-    try {
-        let r = await db.tb_evento.findAll( {where: { nm_evento: req.params.nmEvento}});
-        
-        resp.send(r);
-    }
-    catch {
-        resp.send( {erro: ""})
-    }
-})
+app.use(express.json());
 
 // Autentication
 app.post('/user/create', async(req, resp) => {
@@ -141,22 +131,62 @@ app.get('/user/getall/test', async (req, resp) => {
 
 // Crud in events 
 app.get('/crud/events', async(req, resp) => {
-    let events = await db.infoc_nws_tb_evento.findAll({where: {bt_ativo: true}, })
+    try {
+        let {nome, categoria} = req.query;
+    
+        function filterChoose() {
+            if(categoria != null && categoria != "")
+                return {'$id_categoria_infoc_nws_tb_categorium.ds_tema$': categoria, bt_ativo: true};
+            else if (nome != null && nome != "")
+                return {nm_evento: {[Op.like]: `%${nome}%`}, bt_ativo: true};
+            else {
+                return {bt_ativo: true}
+            }
+        }
+    
+        let events = await db.infoc_nws_tb_evento.findAll({
+            where: filterChoose(),
+            include: [
+                {
+                    model: db.infoc_nws_tb_categoria,
+                    as: 'id_categoria_infoc_nws_tb_categorium',
+                    required: true
+                },
+                {
+                    model: db.infoc_nws_tb_calendario,
+                    as: 'infoc_nws_tb_calendarios',
+                    required: true,
+                    include: [
+                        {
+                            model: db.infoc_nws_tb_calendario_item,
+                            as: 'infoc_nws_tb_calendario_items',
+                            required: true
+                        }
+                    ]
+                },
+            ]
+        })
+    
+        resp.send(events)
+
+    } catch (e) {
+        resp.send( {erro: e.toString()})
+    }
 })
 
 app.post('/crud/events', async(req, resp) => {
     try {
-        let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec} = req.body;
+        let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, genero, imgCapa, imgFundo, imgSec } = req.body;
+        
         categoria = categoria.toLowerCase();
         
-        let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}})
+        let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}});
     
-        let validate = [nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec]
+        let validate = [nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, genero, imgCapa, imgFundo, imgSec]
         if (validate.some(item => {
             item == "" || item == null
-        })) {
+        }))
             return resp.send( {erro: "Todos os campos são obrigatórios"} )
-        }
 
         if (isNaN(valorIngresso) || valorIngresso <= 0)
             return resp.send( { erro: "O Valor do ingresso deve ser um número positivo"})
@@ -175,14 +205,82 @@ app.post('/crud/events', async(req, resp) => {
             img_capa: imgCapa,
             img_fundo: imgFundo,
             img_sec: imgSec,
+            ds_genero: genero,
             bt_ativo: true,
             dt_inclusao: new Date()
         })
+
+        let createCalendary = req.body.datas.map(async item => {
+            let dates = await db.infoc_nws_tb_calendario.create({
+                id_evento: createEvent.id_evento,
+                dt_evento: item.data
+            })
+
+            item.horarios.map(async i => {
+                await db.infoc_nws_tb_calendario_item.create({
+                    id_calendario: dates.id_calendario,
+                    hr_evento: i.hora
+                })
+            })
+        }) 
+
+        
+     
       
         resp.sendStatus(200);
         
     } catch (e) {
         resp.send( { erro: e.toString()})
+    }
+})
+
+app.put('/crud/events', async (req, resp) => {
+    try {
+        let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec} = req.body;
+        categoria = categoria.toLowerCase();
+        
+        let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}})
+    
+        let validate = [nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec]
+        if (validate.some(item => {
+            item == "" || item == null
+        }))
+            return resp.send( {erro: "Todos os campos são obrigatórios"} )
+
+        if (isNaN(valorIngresso) || valorIngresso <= 0)
+            return resp.send( { erro: "O Valor do ingresso deve ser um número positivo"})
+
+        let updateEvent = await db.infoc_nws_tb_evento.update({
+            nm_evento: nmEvento,
+            id_categoria: category.id_categoria,
+            ds_duracao: duracao,
+            ds_classificacao: classificacao,
+            vl_ingresso: valorIngresso,
+            ds_local: local,
+            dt_min: dtMin,
+            dt_max: dtMax,
+            ds_elenco: elenco,
+            ds_evento: descEvento, 
+            img_capa: imgCapa,
+            img_fundo: imgFundo,
+            img_sec: imgSec },
+            {where: {id_evento: req.query.id}}   
+        )
+
+        resp.sendStatus(200);
+    } catch (e) {
+        resp.send( {erro: e.toString()})
+    }
+})
+
+app.delete('/crud/events', async(req, resp) => {
+    try {
+        let r = await db.infoc_nws_tb_evento.destroy({
+            where: {id_evento: req.query.id}
+        })
+        resp.sendStatus(200);
+    } catch (e) {
+        resp.send( {erro: e.toString()})
     }
 })
 
@@ -194,8 +292,7 @@ app.get('/crud/events/getall', async(req, resp) => {
 
 app.get('/buscadireta', async (req,resp) => {
     try {
-
-        let r = await db.infoc_nws_tb_evento.findAll( { where: { nm_evento: req.query.evento, ds_elenco: req.query.evento, ds_local: req.query.evento } } )
+        let r = await db.infoc_nws_tb_evento.findAll( { where: { nm_evento: req.params.evento, ds_elenco: req.params.evento, ds_local: req.params.evento } } )
         resp.send(r);
 
     } catch(e) {
@@ -204,10 +301,10 @@ app.get('/buscadireta', async (req,resp) => {
 })
 
 
-app.get('/buscadirecionada/:id', async (req,resp) => {
+app.get('/buscadirecionada', async (req,resp) => {
     try {
 
-        let categoria = req.params.id;
+        let categoria = req.query.id;
 
         let r = await db.infoc_nws_tb_evento.findAll( { where: { id_categoria: categoria } } )
         resp.send(r);
@@ -216,8 +313,11 @@ app.get('/buscadirecionada/:id', async (req,resp) => {
         resp.send ({ erro: e.toString() })
     }
 })
+//
 
 
+
+// For the buy page
 app.get('/compra/evento/:id', async (req,resp) => {
     try {
         let id = req.params.id;
@@ -263,7 +363,9 @@ app.post ('/compra/evento', async (req, resp) => {
     }
 
 })
+//
 
+//Reports
 app.get('/relatorios', async (req,resp) => {
     try {
 
@@ -273,6 +375,7 @@ app.get('/relatorios', async (req,resp) => {
         resp.send({ erro: e.toString() })
     }
 })
+//
 
 app.get('/user/log', async(req, resp) => { 
     try { 
