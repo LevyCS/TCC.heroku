@@ -2,10 +2,6 @@ import db from './db.js'
 import express from 'express'
 import cors from 'cors'
 import nodemailer from 'nodemailer'
-import Sequelize from 'sequelize'
-
-const { Op, fn, col } = Sequelize;
-
 
 import Sequelize from 'sequelize';
 const { Op, col, fn } = Sequelize;
@@ -389,6 +385,7 @@ app.get('/user/log', async(req, resp) => {
 
 })
 
+//MARIANA
 
 function OrderManagement (order) { 
     switch ( order ) {
@@ -471,7 +468,6 @@ app.get('/confirmTicket', async (req,resp) => {
 });
 
 
-
 app.put('/confirmTicket/:idVenda', async (req,resp) => { 
     const { aprovado } = req.body;
     const { idVenda  } = req.params;
@@ -497,18 +493,18 @@ app.get('/TicketPerson', async (req,resp) => {
             
             const ticket = await db.infoc_nws_tb_venda_item.findAll({   
                  where: {
-                     id_venda_item : id
+                     id_venda : id
                  },
                 include: [
                     {   
                         model: db.infoc_nws_tb_evento,
                         as: 'id_evento_infoc_nws_tb_evento',
                         attributes: [],
-                        include: { 
-                            model: db.infoc_nws_tb_categoria, 
-                            as: 'id_categoria_infoc_nws_tb_categoria',
-                            attributes: []
-                        }
+                         include: { 
+                             model: db.infoc_nws_tb_categoria, 
+                             as: 'id_categoria_infoc_nws_tb_categorium',
+                             attributes: []
+                         }
                     }, 
                     { 
                         model: db.infoc_nws_tb_venda,
@@ -517,7 +513,7 @@ app.get('/TicketPerson', async (req,resp) => {
                         include: { 
                             model: db.infoc_nws_tb_usuario,
                             as: 'id_usuario_infoc_nws_tb_usuario',
-                            attributes: [], 
+                            attributes: [] 
                         }  
                     } 
                 ], 
@@ -525,7 +521,7 @@ app.get('/TicketPerson', async (req,resp) => {
                     [col('id_venda_infoc_nws_tb_venda.ds_situacao'), 'situacao do evento'],   
                     [col('id_evento_infoc_nws_tb_evento.ds_local'), 'local'],    
                     [col('id_evento_infoc_nws_tb_evento.nm_evento'), 'evento'],
-                    [col('id_categoria_infoc_nws_tb_categoria.ds_tema'), 'categoria']
+                    [col('id_evento_infoc_nws_tb_evento.id_categoria_infoc_nws_tb_categorium.ds_tema'), 'categoria']
                 ]
             })
 
@@ -536,7 +532,6 @@ app.get('/TicketPerson', async (req,resp) => {
     }
 
 })
-
 
 app.listen(process.env.PORT,
               x => console.log(`Server up at port ${process.env.PORT}`))
