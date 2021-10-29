@@ -92,7 +92,7 @@ app.post('/create', async(req, resp) => {
     }
 });
 
-app.get('/login/', async(req, resp) => {
+app.get('/login', async(req, resp) => {
     try {
         let confirm = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: req.query.email}});
         if (confirm == null) 
@@ -162,6 +162,52 @@ app.put('/changepassword', async(req, resp) => {
         let updatePasswordNCod = await db.infoc_nws_tb_usuario.update({ds_senha: senha, ds_codigo: null}, {where: {id_usuario: r.id_usuario}})
         resp.sendStatus(200)
     } catch (e) { resp.send( { erro: e.toString()})}
+})
+
+app.get('/log', async(req, resp) => { 
+    try { 
+
+        let r = await db.infoc_nws_tb_usuario.findAll();
+        resp.send(r);
+
+    } catch (e) { 
+        resp.send({ erro: e.toString() })
+    }
+
+})
+
+function OrderManagement (order) { 
+    switch ( order ) {
+        case 'Listar em ordem crescente': return [ 'nm_usuario', 'asc'] 
+        case 'Listar em ordem decrescente' : return [ 'nm_usuario', 'desc']
+        default: return [ 'nm_usuario', 'asc']
+    }
+}
+
+app.get('/management', async (req, resp) => {
+    try { 
+         let criteria = OrderManagement(req.query.ordenacao) 
+
+         let filtrarAdm = req.query.ordenacao === 'Listar administradores';
+
+         const management = await db.infoc_nws_tb_usuario.findAll({
+            where: { 
+                bt_adm: filtrarAdm 
+            },
+            attributes: [
+                ['nm_usuario', 'usuario'], 
+                ['ds_email', 'email']
+           ],
+            order: [
+                 criteria
+             ]
+         })
+
+         resp.send(management)
+
+    } catch (e) { 
+        resp.send({ erro: e.toString() })
+    }
 })
 
 export default app;

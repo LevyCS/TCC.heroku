@@ -7,51 +7,7 @@ import express from "express";
 const app = express.Router();
 
 
-app.get('/user/log', async(req, resp) => { 
-    try { 
 
-        let r = await db.infoc_nws_tb_usuario.findAll();
-        resp.send(r);
-
-    } catch (e) { 
-        resp.send({ erro: e.toString() })
-    }
-
-})
-
-function OrderManagement (order) { 
-    switch ( order ) {
-        case 'Listar em ordem crescente': return [ 'nm_usuario', 'asc'] 
-        case 'Listar em ordem decrescente' : return [ 'nm_usuario', 'desc']
-        default: return [ 'nm_usuario', 'asc']
-    }
-}
-
-app.get('/user/management', async (req, resp) => {
-    try { 
-         let criteria = OrderManagement(req.query.ordenacao) 
-
-         let filtrarAdm = req.query.ordenacao === 'Listar administradores';
-
-         const management = await db.infoc_nws_tb_usuario.findAll({
-            where: { 
-                bt_adm: filtrarAdm 
-            },
-            attributes: [
-                ['nm_usuario', 'usuario'], 
-                ['ds_email', 'email']
-           ],
-            order: [
-                 criteria
-             ]
-         })
-
-         resp.send(management)
-
-    } catch (e) { 
-        resp.send({ erro: e.toString() })
-    }
-})
 
 app.get('/confirmTicket', async (req,resp) => { 
     const vendas = await db.infoc_nws_tb_venda.findAll({
