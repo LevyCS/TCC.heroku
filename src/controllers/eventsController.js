@@ -197,12 +197,14 @@ app.get('/buscadireta', async (req,resp) => {
                 bt_ativo: true
             },
             attributes: [
-                ['nm_evento', 'nome do evento'],
+                ['nm_evento', 'nomevento'],
                 ['ds_elenco', 'elenco'],
                 ['ds_classificacao', 'classificacao'],
                 ['ds_duracao', 'duracao'],
                 ['ds_evento', 'sinopse'],
-                ['ds_genero', 'gênero']
+                ['ds_genero', 'gênero'],
+                ['img_capa', 'imagemcapa']
+
             ]
          });
         resp.send(r);
@@ -224,11 +226,13 @@ app.get('/buscadirecionada', async (req,resp) => {
                 { id_categoria: categoria, 
                     bt_ativo: true },
                 attributes: [
-                    ['nm_evento', 'nome do evento'],
+                    ['nm_evento', 'nomevento'],
                     ['ds_elenco', 'elenco'],
                     ['ds_classificacao', 'classificacao'],
                     ['ds_duracao', 'duracao'],
                     ['ds_evento', 'sinopse'],
+                    ['ds_genero', 'gênero'],
+                    ['img_capa', 'imagemcapa']
                 ]
             });
         resp.send(r);
