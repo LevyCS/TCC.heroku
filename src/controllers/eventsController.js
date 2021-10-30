@@ -116,46 +116,50 @@ app.post('/crud', async(req, resp) => {
 
 
 
-app.put('/crud', async (req, resp) => {
+app.post('/crud/teste', async (req, resp) => {
     try {
-        let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec} = req.body;
-        categoria = categoria.toLowerCase();
+        // let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec} = req.body;
+        // categoria = categoria.toLowerCase();
         
-        let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}})
+        // let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}})
     
-        let validate = [nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec]
-        if (validate.some(item => {
-            item == "" || item == null
-        }))
-            return resp.send( {erro: "Todos os campos são obrigatórios"} )
+        // let validate = [nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, imgCapa, imgFundo, imgSec]
+        // if (validate.some(item => {
+        //     item == "" || item == null
+        // }))
+        //     return resp.send( {erro: "Todos os campos são obrigatórios"} )
 
-        if (isNaN(valorIngresso) || valorIngresso <= 0)
-            return resp.send( { erro: "O Valor do ingresso deve ser um número positivo"})
+        // if (isNaN(valorIngresso) || valorIngresso <= 0)
+        //     return resp.send( { erro: "O Valor do ingresso deve ser um número positivo"})
 
-        let updateEvent = await db.infoc_nws_tb_evento.update({
-            nm_evento: nmEvento,
-            id_categoria: category.id_categoria,
-            ds_duracao: duracao,
-            ds_classificacao: classificacao,
-            vl_ingresso: valorIngresso,
-            ds_local: local,
-            dt_min: dtMin,
-            dt_max: dtMax,
-            ds_elenco: elenco,
-            ds_evento: descEvento, 
-            img_capa: imgCapa,
-            img_fundo: imgFundo,
-            img_sec: imgSec },
-            {where: {id_evento: req.query.id}}   
-        )
+        // let updateEvent = await db.infoc_nws_tb_evento.update({
+        //     nm_evento: nmEvento,
+        //     id_categoria: category.id_categoria,
+        //     ds_duracao: duracao,
+        //     ds_classificacao: classificacao,
+        //     vl_ingresso: valorIngresso,
+        //     ds_local: local,
+        //     dt_min: dtMin,
+        //     dt_max: dtMax,
+        //     ds_elenco: elenco,
+        //     ds_evento: descEvento, 
+        //     img_capa: imgCapa,
+        //     img_fundo: imgFundo,
+        //     img_sec: imgSec },
+        //     {where: {id_evento: req.query.id}}   
+        // )
 
-        let updateCalendar = req.body.datas.map(async item => {
-            let dates = await db.infoc_nws_tb_calendario.update({
-                
-            })
-        })
+        // let updateCalendar = req.body.datas.map(async item => {
+        //     let dates = await db.infoc_nws_tb_calendario.update({
 
-        resp.send(updateEvent);
+        //     })
+        // })
+
+        let r = await db.infoc_nws_tb_calendario.findAll({where: {id_evento: req.query.id}})
+        
+
+
+        resp.send(r);
 
     } catch (e) {
         resp.send( {erro: e.toString()})
