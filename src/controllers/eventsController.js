@@ -103,10 +103,7 @@ app.post('/crud', async(req, resp) => {
                 })
             })
         }) 
-
-        
-     
-      
+    
         resp.sendStatus(200);
         
     } catch (e) {
@@ -186,14 +183,15 @@ app.get('/crud/getall', async(req, resp) => {
 
 app.get('/buscadireta', async (req,resp) => {
     try {
+        let search = req.query.search;
         let r = await db.infoc_nws_tb_evento.findAll( 
             { where: {
                 [Op.or]: [
-                    { 'nm_evento': {[Op.like]: `%${req.query.search}%` }},
-                    { 'ds_elenco': {[Op.like]: `%${req.query.search}%` }},
-                    { 'ds_evento': {[Op.like]: `%${req.query.search}%` }},
-                    { 'ds_classificacao': {[Op.like]: `%${req.query.search}%` }},
-                    { 'ds_genero': {[Op.like]: `%${req.query.search}%` }}
+                    { 'nm_evento': {[Op.like]: `%${search}%` }},
+                    { 'ds_elenco': {[Op.like]: `%${search}%` }},
+                    { 'ds_evento': {[Op.like]: `%${search}%` }},
+                    { 'ds_classificacao': {[Op.like]: `%${search}%` }},
+                    { 'ds_genero': {[Op.like]: `%${search}%` }}
                 ],
 
                 bt_ativo: true
