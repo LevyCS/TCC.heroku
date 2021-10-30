@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer'
 
 
 import Sequelize from 'sequelize';
+import e from 'express';
 const { Op, col, fn } = Sequelize;
 
 const app = express();
@@ -266,6 +267,7 @@ app.get('/buscadirecionada', async (req,resp) => {
     try {
 
         let categoria = req.query.id;
+        console.log(categoria)
 
         let r = await db.infoc_nws_tb_evento.findAll( { where: { id_categoria: categoria } } )
         resp.send(r);
@@ -274,6 +276,20 @@ app.get('/buscadirecionada', async (req,resp) => {
         resp.send ({ erro: e.toString() })
     }
 })
+//
+
+// TESTE
+    app.get('/buscas', async (req,resp) => {
+        try {
+
+            let r = await db.infoc_nws_tb_evento.findAll();
+            resp.send(r);
+
+        }
+        catch (e) {
+            resp.send({erro: e.toString()})
+        }
+    })
 //
 
 
