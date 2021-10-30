@@ -149,7 +149,14 @@ app.put('/crud', async (req, resp) => {
             {where: {id_evento: req.query.id}}   
         )
 
-        resp.sendStatus(200);
+        let updateCalendar = req.body.datas.map(async item => {
+            let dates = await db.infoc_nws_tb_calendario.update({
+                
+            })
+        })
+
+        resp.send(updateEvent);
+
     } catch (e) {
         resp.send( {erro: e.toString()})
     }
