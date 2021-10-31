@@ -200,16 +200,7 @@ app.get('/buscadireta', async (req,resp) => {
 
                 bt_ativo: true
             },
-            attributes: [
-                ['nm_evento', 'nomevento'],
-                ['ds_elenco', 'elenco'],
-                ['ds_classificacao', 'classificacao'],
-                ['ds_duracao', 'duracao'],
-                ['ds_evento', 'sinopse'],
-                ['ds_genero', 'gênero'],
-                ['img_capa', 'imagemcapa']
-
-            ]
+            attributes: camps()
          });
         resp.send(r);
 
@@ -229,7 +220,8 @@ app.get('/buscadirecionada', async (req,resp) => {
             { where: 
                 { id_categoria: categoria, 
                     bt_ativo: true },
-
+            
+                attributes: camps() 
             });
         resp.send(r);
 
@@ -237,5 +229,26 @@ app.get('/buscadirecionada', async (req,resp) => {
         resp.send ({ erro: e.toString() })
     }
 })
+
+function camps() {
+    return [
+        ['nm_evento', 'nomevento'],
+        ['ds_elenco', 'elenco'],
+        ['ds_classificacao', 'classificacao'],
+        ['ds_duracao', 'duracao'],
+        ['ds_evento', 'sinopse'],
+        ['ds_genero', 'gênero'],
+        ['img_capa', 'imagemcapa'],
+        ['vl_ingresso', 'preco'],
+        ['ds_local', 'local'],
+        ['dt_min', 'dataminima'],
+        ['dt_max', 'datamaxima'],
+        ['ds_elenco', 'elenco'],
+        ['img_fundo', 'imagemfundo'],
+        ['img_sec', 'imagemsecundaria']
+    ]
+}
+
+
 
 export default app;
