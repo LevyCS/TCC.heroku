@@ -220,9 +220,10 @@ app.get('/buscadirecionada', async (req,resp) => {
             { where: 
                 { id_categoria: categoria, 
                     bt_ativo: true },
-            
                 attributes: camps() 
             });
+
+
         resp.send(r);
 
     } catch (e) {
@@ -248,7 +249,6 @@ function camps() {
         ['img_sec', 'imagemsecundaria']
     ]
 }
-
 
 
 export default app;
