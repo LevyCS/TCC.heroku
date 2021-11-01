@@ -151,12 +151,24 @@ app.post('/crud/teste', async (req, resp) => {
 
         //     })
         // })
-
-        let r = await db.infoc_nws_tb_calendario.findAll({where: {id_evento: req.query.id}})
         
+        let r = await db.infoc_nws_tb_calendario.findAll({where: {id_evento: req.query.id}})
+        r.forEach(async (item, i) => {
+            let updateDates = await db.infoc_nws_tb_calendario.update({dt_evento: req.body.datas[i].data}, 
+            {where: {id_calendario: item.id_calendario}})
+        })
 
-
-        resp.send(r);
+        let x = await db.infoc_nws_tb_calendario.findAll({where: {id_evento: req.query.id},
+        include: [
+            {
+                model: db.infoc_nws_tb_calendario_item,
+                as: 'infoc_nws_tb_calendario_items',
+                required: true
+            },
+        ]
+        })
+    
+        resp.send(x);
 
     } catch (e) {
         resp.send( {erro: e.toString()})
