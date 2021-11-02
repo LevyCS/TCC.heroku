@@ -243,6 +243,14 @@ app.get('/buscadirecionada', async (req,resp) => {
     }
 })
 
+app.get('/emdestaque', async (req,resp) => {
+    try {
+
+    } catch(e) {
+        resp.send({ erro: e.toString() })
+    }
+})
+
 function camps() {
     return [
         ['nm_evento', 'nomevento'],
