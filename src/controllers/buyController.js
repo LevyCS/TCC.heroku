@@ -51,5 +51,10 @@ app.post ('/event', async (req, resp) => {
 
 })
 
+app.get('/', async (req,resp) => {
+    let r = await db.infoc_nws_tb_venda.findAll();
+    resp.send(r);
+})
+
 
 export default app;
