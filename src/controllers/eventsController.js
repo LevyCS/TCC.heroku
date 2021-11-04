@@ -5,6 +5,7 @@ const { Op, col, fn } = Sequelize;
 
 
 import express from "express";
+import infoc_nws_tb_venda from "../models/infoc_nws_tb_venda.js";
 const app = express.Router();
 
 
@@ -238,6 +239,46 @@ app.get('/buscadirecionada', async (req,resp) => {
 
 app.get('/emdestaque', async (req,resp) => {
     try {
+        let r = await db.infoc_nws_tb_evento.findAll({
+            group: [
+                col('infoc_nws_tb_venda_items.id_evento')
+            ],
+            having: Sequelize.literal('count(1) > 8'),
+            attributes: [
+                [fn('count', 1), 'qtd'],
+                [col('infoc_nws_tb_venda_items.id_evento'), 'id_evento'],
+                ['nm_evento', 'nomevento'],
+                ['ds_elenco', 'elenco'],
+                ['ds_classificacao', 'classificacao'],
+                ['ds_duracao', 'duracao'],
+                ['ds_evento', 'sinopse'],
+                ['ds_genero', 'gênero'],
+                ['img_capa', 'imagemcapa'],
+                ['vl_ingresso', 'preco'],
+                ['ds_local', 'local'],
+                ['dt_min', 'dataminima'],
+                ['dt_max', 'datamaxima'],
+                ['ds_elenco', 'elenco'],
+                ['img_fundo', 'imagemfundo'],
+                ['img_sec', 'imagemsecundaria']
+
+            ],
+            include: [
+            {
+                model:  db.infoc_nws_tb_venda_item,
+                as: 'infoc_nws_tb_venda_items',
+                required: true,
+                attributes: [],
+                include: [{
+                    model: db.infoc_nws_tb_venda,
+                    as: 'id_venda_infoc_nws_tb_venda',
+                    required: true
+                }]
+            },
+        ]
+        })
+
+        resp.send(r);
 
     } catch(e) {
         resp.send({ erro: e.toString() })
