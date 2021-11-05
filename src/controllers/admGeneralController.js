@@ -76,8 +76,30 @@ app.put('/confirmTicket/:idVenda', async (req,resp) => {
 
 app.get('/relatorios', async (req,resp) => {
     try {
+        let r = await db.infoc_nws_tb_categoria.findAll({
+            group: [
+                col('infoc_nws_tb_eventos.id_categoria'),
+            ],
+            attributes: [
+                [fn('count', 1), 'qtdEventos'],
+                [col('infoc_nws_tb_eventos.id_categoria'), 'categoria'],
+            ],
+            include: [{
+                model:  db.infoc_nws_tb_evento,
+                as: 'infoc_nws_tb_eventos',
+                required: true,
+                attributes: [],
+                include: [{
+                    model:  db.infoc_nws_tb_venda_item,
+                    as: 'infoc_nws_tb_venda_items',
+                    required: true,
+                    attributes: [],
+                }]
+            }]
 
-
+        })
+        
+        resp.send(r);
 
     } catch (e) {
         resp.send({ erro: e.toString() })
