@@ -94,7 +94,7 @@ app.post('/create', async(req, resp) => {
 
 app.get('/login', async(req, resp) => {
     try {
-        let confirm = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: req.query.email}});
+        let confirm = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: req.query.mail}});
         if (confirm == null) 
             return resp.send( {erro: "Usuário não cadastrado"})
     
