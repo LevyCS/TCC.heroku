@@ -77,13 +77,6 @@ app.put('/confirmTicket/:idVenda', async (req,resp) => {
 app.get('/relatorios', async (req,resp) => {
     try {
         let r = await db.infoc_nws_tb_categoria.findAll({
-            group: [
-                col('infoc_nws_tb_eventos.id_categoria'),
-            ],
-            attributes: [
-                [fn('count', 1), 'qtdEventos'],
-                [col('infoc_nws_tb_eventos.id_categoria'), 'categoria'],
-            ],
             include: [{
                 model:  db.infoc_nws_tb_evento,
                 as: 'infoc_nws_tb_eventos',
@@ -94,12 +87,62 @@ app.get('/relatorios', async (req,resp) => {
                     as: 'infoc_nws_tb_venda_items',
                     required: true,
                     attributes: [],
+                    include: [{
+                        model: db.infoc_nws_tb_venda,
+                        as: 'id_venda_infoc_nws_tb_venda',
+                        required: true,
+                        attributes:[]
+                    }]
                 }]
-            }]
+            }],
+            group: [
+                col('infoc_nws_tb_eventos.id_categoria'),
+            ],
+            attributes: [
+                [fn('count', 1), 'qtdEventos'],
+                [col('infoc_nws_tb_eventos.id_categoria'), 'categoria']
+            ]
 
         })
         
         resp.send(r);
+
+    } catch (e) {
+        resp.send({ erro: e.toString() })
+    }
+})
+
+
+app.get('/relatorios', async (req,resp) => {
+    try {
+        let r = await db.infoc_nws_tb_venda.findAll({
+            include: [{
+                model: db.infoc_nws_tb_venda_item,
+                as: 'infoc_nws_tb_venda_items',
+                required: true,
+                attributes: [],
+                include: [{
+                    model:  db.infoc_nws_tb_evento,
+                    as: 'infoc_nws_tb_eventos',
+                    required: true,
+                    attributes: [],
+                    include: [{
+                        model: db.infoc_nws_tb_categoria,
+                        as: 'id_categoria_infoc_nws_tb_categorium',
+                        required: true,
+                        attributes: []
+                    }]
+                }]
+            }],
+            group: [
+                col('infoc_nws_tb_venda_items.id_categoria')
+            ],
+            attributes: [
+                [fn('count', 1), 'qtdEventos'],
+                [col('infoc_nws_tb_venda_items.id_categoria'), 'categoria']
+            ]
+        })
+
 
     } catch (e) {
         resp.send({ erro: e.toString() })
