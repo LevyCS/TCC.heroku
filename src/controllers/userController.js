@@ -82,6 +82,7 @@ app.post('/create', async(req, resp) => {
             ds_username: json.username,
             ds_senha: json.senha,
             dt_nascimento: json.nascimento,
+            img_perfil: json.imagem,
             bt_adm: false
         })
 
