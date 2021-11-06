@@ -52,7 +52,8 @@ app.post ('/event', async (req, resp) => {
             id_usuario: userId,
             id_cartao: createCreditcard.id_cartao,
             ds_situacao: "aguardando",
-            tp_pagamento: paymentMethod
+            tp_pagamento: paymentMethod,
+            dt_inclusao: new Date()
         })
 
         req.body.sellingItems.map(async (item) => {
