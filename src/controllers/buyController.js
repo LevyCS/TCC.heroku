@@ -35,32 +35,35 @@ app.get('/eventhour/:id', async (req, resp) => {
 
 app.post ('/event', async (req, resp) => {
     try {
-        let { idUsu, situacao, pagamento, compracartao, item } = req.body;
         let { cardNumber, cardOwner, cvc, validity, cpf } = req.body.creditCard;
-        let { idevento, qrcode } = item;
+        let { userId, paymentMethod } = req.body.selling;
+
+        validity = validity.split('/')
 
         let createCreditcard = await db.infoc_nws_tb_cartao.create({
             nr_cartao: cardNumber,
             nm_titular: cardOwner,
             ds_cvc: cvc,
-            dt_vencimento: validity,
+            dt_vencimento: new Date(`20${validity[1]}-${validity[0]}-01`),
             ds_cpf: cpf
         })
 
-        let createSell = await db.infoc_nws_tb_venda.create({
-            id_usuario: idUsu,
-            id_cartao: creditCard.id_cartao,
-            ds_situacao: situacao,
-            tp_pagamento: pagamento
+        let createSelling = await db.infoc_nws_tb_venda.create({
+            id_usuario: userId,
+            id_cartao: createCreditcard.id_cartao,
+            ds_situacao: "aguardando",
+            tp_pagamento: paymentMethod
         })
 
-        let createSellitem = await db.infoc_nws_tb_venda_item.create({
-            id_venda: venda.id_usuario,
-            id_evento: idevento,
-            ds_qrcode: qrcode
+        req.body.sellingItems.map(async (item) => {
+            let createSellingItems = await db.infoc_nws_tb_venda_item.create({
+                id_calendario_item: item.calendary_item,
+                id_venda: createSelling.id_venda,
+                ds_qrcode: "nseikkkk"
+            })
         })
-
-        resp.send( "Tudo lindo por aqui!" );
+    
+        resp.sendStatus(200);
 
     } catch (e) {
         resp.send({ erro: e.toString() })
