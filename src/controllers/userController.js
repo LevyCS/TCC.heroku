@@ -215,10 +215,6 @@ app.get('/management', async (req, resp) => {
             where: { 
                 bt_adm: filtrarAdm 
             },
-            attributes: [
-                ['nm_usuario', 'usuario'], 
-                ['ds_email', 'email']
-           ],
             order: [
                  criteria
              ]

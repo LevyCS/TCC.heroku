@@ -16,28 +16,45 @@ app.get('/event/:id', async (req,resp) => {
     }
 })
 
+//2 gets, 1 para pegar as datas, recebdo o id
+// outro para pegar os horarios, recebendo a o id calendario
+
+app.get('/eventdate/:id', async(req, resp) => {
+    try { 
+        let r = await db.infoc_nws_tb_calendario.findAll({where: {id_evento: req.params.id}})
+        resp.send(r);
+    } catch (e) { resp.send( {erro: e.toString()})} 
+})
+
+app.get('/eventhour/:id', async (req, resp) => {
+    try {
+        let r = await db.infoc_nws_tb_calendario_item.findAll({where: {id_calendario: req.params.id}})
+        resp.send(r)
+    } catch (e) {resp.send( {erro: e.toString()} )}
+})
+
 app.post ('/event', async (req, resp) => {
     try {
         let { idUsu, situacao, pagamento, compracartao, item } = req.body;
-        let { cartao, titular, cvc, vencimento, cpf } = compracartao;
+        let { cardNumber, cardOwner, cvc, validity, cpf } = req.body.creditCard;
         let { idevento, qrcode } = item;
 
-        let venda = await db.infoc_nws_tb_venda.create({
+        let createCreditcard = await db.infoc_nws_tb_cartao.create({
+            nr_cartao: cardNumber,
+            nm_titular: cardOwner,
+            ds_cvc: cvc,
+            dt_vencimento: validity,
+            ds_cpf: cpf
+        })
+
+        let createSell = await db.infoc_nws_tb_venda.create({
             id_usuario: idUsu,
+            id_cartao: creditCard.id_cartao,
             ds_situacao: situacao,
             tp_pagamento: pagamento
         })
 
-        let cartaodecredito = await db.infoc_nws_tb_cartao.create({
-            id_venda: venda.id_usuario,
-            nr_cartao: cartao,
-            nm_titular: titular,
-            ds_cvc: cvc,
-            dt_vencimento: vencimento,
-            ds_cpf: cpf
-        })
-
-        let vendaitem = await db.infoc_nws_tb_venda_item.create({
+        let createSellitem = await db.infoc_nws_tb_venda_item.create({
             id_venda: venda.id_usuario,
             id_evento: idevento,
             ds_qrcode: qrcode
