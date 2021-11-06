@@ -55,7 +55,27 @@ app.get('/TicketPerson', async (req,resp) => {
 
 })
 
+app.get('/getall/test', async (req, resp) => {
+    let r = await db.infoc_nws_tb_usuario.findAll()
+    return r;
+})
 
+app.put('/update/:id', async (req, resp) => {
+    try {
+        let json = req.body;
+        let update = await db.infoc_nws_tb_usuario.update({
+            nm_usuario: json.nmUsu,
+            ds_cpf: json.cpf,
+            ds_email: json.email,
+            ds_username: json.username,
+            ds_senha: json.senha,
+            dt_nascimento: json.nascimento,
+            img_perfil: json.imagem
+        }, {where: {id_usuario: req.params.id}})
+
+        resp.sendStatus(200);
+    } catch (e) { resp.send( {erro: e.toString()})}
+})
 
 app.post('/create', async(req, resp) => {
     try {
