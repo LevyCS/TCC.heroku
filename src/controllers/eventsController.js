@@ -5,7 +5,7 @@ const { Op, col, fn } = Sequelize;
 
 
 import express from "express";
-import infoc_nws_tb_venda from "../models/infoc_nws_tb_venda.js";
+
 const app = express.Router();
 
 
@@ -203,10 +203,15 @@ app.get('/buscadireta', async (req,resp) => {
                     { 'ds_classificacao': {[Op.like]: `%${search}%` }},
                     { 'ds_genero': {[Op.like]: `%${search}%` }}
                 ],
-
+                include: [
+                    {
+                        model: db.infoc_nws_tb_categoria,
+                        as: 'id_categoria_infoc_nws_tb_categorium',
+                        required: true
+                    }
+                ],
                 bt_ativo: true
             },
-            attributes: camps()
          });
         resp.send(r);
 
@@ -226,7 +231,15 @@ app.get('/buscadirecionada', async (req,resp) => {
             { where: 
                 { id_categoria: categoria, 
                     bt_ativo: true },
-                attributes: camps() 
+
+                attributes: camps(),
+                include: [
+                    {
+                        model: db.infoc_nws_tb_categoria,
+                        as: 'id_categoria_infoc_nws_tb_categorium',
+                        required: true
+                    }
+                ]
             });
 
 
@@ -235,6 +248,41 @@ app.get('/buscadirecionada', async (req,resp) => {
     } catch (e) {
         resp.send ({ erro: e.toString() })
     }
+})
+
+app.get('/marianafilhadaputa', async (req, resp) => {
+    let r = await db.infoc_nws_tb_venda_item.findAll({
+    group: [
+        col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.id_evento')
+    ],
+    attributes: [
+        [fn('count', 1), 'qtd'],
+        [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.id_evento'), 'id_evento']
+    ],
+    include: [
+        {
+            model: db.infoc_nws_tb_calendario_item,
+            as: 'id_calendario_item_infoc_nws_tb_calendario_item',
+            required: true,
+            include: [
+                {
+                    model: db.infoc_nws_tb_calendario,
+                    as: 'id_calendario_infoc_nws_tb_calendario',
+                    required: true,
+                    include: [
+                        {
+                            model: db.infoc_nws_tb_evento,
+                            as: 'id_evento_infoc_nws_tb_evento',
+                            required: true
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    })
+
+    resp.send(r);
 })
 
 app.get('/emdestaque', async (req,resp) => {
@@ -301,6 +349,7 @@ function camps() {
         ['ds_elenco', 'elenco'],
         ['img_fundo', 'imagemfundo'],
         ['img_sec', 'imagemsecundaria']
+        
     ]
 }
 
