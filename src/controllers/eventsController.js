@@ -250,42 +250,60 @@ app.get('/buscadirecionada', async (req,resp) => {
     }
 })
 
-app.get('/marianafilhadaputa', async (req, resp) => {
-    let r = await db.infoc_nws_tb_venda_item.findAll({
-    group: [
-        col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.id_evento')
-    ],
-    attributes: [
-        [fn('count', 1), 'qtd'],
-        [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.id_evento'), 'id_evento']
-    ],
-    include: [
-        {
-            model: db.infoc_nws_tb_calendario_item,
-            as: 'id_calendario_item_infoc_nws_tb_calendario_item',
-            required: true,
+app.get('/highlighted', async (req, resp) => {
+    try {
+        let r = await db.infoc_nws_tb_venda_item.findAll({
+            group: [
+                col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.id_evento')
+            ],
+            attributes: [
+                [fn('count', 1), 'qtd'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.id_evento'), 'id_evento'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.nm_evento'), 'nomevento'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_elenco'), 'elenco'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_classificacao'), 'classificacao'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_duracao'), 'duracao'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_evento'), 'sinopse'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_genero'), 'gênero'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.img_capa'), 'imagemcapa'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.vl_ingresso'), 'preco'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_local'), 'local'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.dt_min'), 'dataminima'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.dt_max'), 'datamaxima'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.img_fundo'), 'imagemfundo'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.img_sec'), 'imagemsecundaria']
+            ],
+            limit: 10,
             include: [
                 {
-                    model: db.infoc_nws_tb_calendario,
-                    as: 'id_calendario_infoc_nws_tb_calendario',
+                    model: db.infoc_nws_tb_calendario_item,
+                    as: 'id_calendario_item_infoc_nws_tb_calendario_item',
                     required: true,
                     include: [
                         {
-                            model: db.infoc_nws_tb_evento,
-                            as: 'id_evento_infoc_nws_tb_evento',
-                            required: true
+                            model: db.infoc_nws_tb_calendario,
+                            as: 'id_calendario_infoc_nws_tb_calendario',
+                            required: true,
+                            include: [
+                                {
+                                    model: db.infoc_nws_tb_evento,
+                                    as: 'id_evento_infoc_nws_tb_evento',
+                                    required: true
+                                }
+                            ]
                         }
                     ]
                 }
-            ]
-        }
-    ],
-    })
-
-    resp.send(r);
+            ],
+            })
+        
+            resp.send(r);
+    } catch(e) {
+        resp.send({ erro: e.toString() })
+    }
 })
 
-app.get('/emdestaque', async (req,resp) => {
+/* app.get('/emdestaque', async (req,resp) => {
     try {
         let r = await db.infoc_nws_tb_evento.findAll({
             group: [
@@ -333,6 +351,7 @@ app.get('/emdestaque', async (req,resp) => {
         resp.send({ erro: e.toString() })
     }
 })
+*/
 
 function camps() {
     return [
@@ -348,7 +367,6 @@ function camps() {
         ['ds_local', 'local'],
         ['dt_min', 'dataminima'],
         ['dt_max', 'datamaxima'],
-        ['ds_elenco', 'elenco'],
         ['img_fundo', 'imagemfundo'],
         ['img_sec', 'imagemsecundaria']
         
