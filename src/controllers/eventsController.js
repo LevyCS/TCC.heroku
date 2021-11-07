@@ -254,10 +254,6 @@ app.get('/buscadirecionada', async (req,resp) => {
 app.get('/highlighted', async (req, resp) => {
     try {
 
-        const page = req.query.page || 0;
-        const pageItem = 2;
-        const skipItem = (page -1) * pageItem;
-
         let r = await db.infoc_nws_tb_venda_item.findAll({
             group: [
                 col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.id_evento')
@@ -280,8 +276,6 @@ app.get('/highlighted', async (req, resp) => {
                 [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.img_sec'), 'imagemsecundaria'],
                 [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.id_categoria_infoc_nws_tb_categorium.ds_tema'), 'ds_tema']
             ],
-            limit: pageItem,
-            offset: skipItem,
             include: [
                 {
                     model: db.infoc_nws_tb_calendario_item,
@@ -311,15 +305,10 @@ app.get('/highlighted', async (req, resp) => {
                 }
             ],
             })
+            
 
-            let qtd = r.length;
-            
-            
-            resp.send({
-                items: r,
-                qtd: qtd,
-                wpage: page
-            });
+            resp.send(r);
+
 
     } catch(e) {
         resp.send({ erro: e.toString() })
