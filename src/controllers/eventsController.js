@@ -271,7 +271,8 @@ app.get('/highlighted', async (req, resp) => {
                 [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.dt_min'), 'dataminima'],
                 [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.dt_max'), 'datamaxima'],
                 [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.img_fundo'), 'imagemfundo'],
-                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.img_sec'), 'imagemsecundaria']
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.img_sec'), 'imagemsecundaria'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.id_categoria_infoc_nws_tb_categorium.ds_tema'), 'ds_tema']
             ],
             limit: 10,
             include: [
@@ -288,7 +289,14 @@ app.get('/highlighted', async (req, resp) => {
                                 {
                                     model: db.infoc_nws_tb_evento,
                                     as: 'id_evento_infoc_nws_tb_evento',
-                                    required: true
+                                    required: true,
+                                    include: [
+                                        {
+                                            model: db.infoc_nws_tb_categoria,
+                                            as: 'id_categoria_infoc_nws_tb_categorium',
+                                            required: true
+                                        }
+                                    ]
                                 }
                             ]
                         }
@@ -303,7 +311,7 @@ app.get('/highlighted', async (req, resp) => {
     }
 })
 
-/* app.get('/emdestaque', async (req,resp) => {
+app.get('/emdestaque', async (req,resp) => {
     try {
         let r = await db.infoc_nws_tb_evento.findAll({
             group: [
@@ -351,7 +359,6 @@ app.get('/highlighted', async (req, resp) => {
         resp.send({ erro: e.toString() })
     }
 })
-*/
 
 function camps() {
     return [
@@ -368,8 +375,8 @@ function camps() {
         ['dt_min', 'dataminima'],
         ['dt_max', 'datamaxima'],
         ['img_fundo', 'imagemfundo'],
-        ['img_sec', 'imagemsecundaria']
-        
+        ['img_sec', 'imagemsecundaria'],
+        [col('id_categoria_infoc_nws_tb_categorium.ds_tema'), 'ds_tema']
     ]
 }
 
