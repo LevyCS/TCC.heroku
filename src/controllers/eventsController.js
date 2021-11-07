@@ -203,15 +203,16 @@ app.get('/buscadireta', async (req,resp) => {
                     { 'ds_classificacao': {[Op.like]: `%${search}%` }},
                     { 'ds_genero': {[Op.like]: `%${search}%` }}
                 ],
-                include: [
-                    {
-                        model: db.infoc_nws_tb_categoria,
-                        as: 'id_categoria_infoc_nws_tb_categorium',
-                        required: true
-                    }
-                ],
                 bt_ativo: true
             },
+            attributes: camps(),
+            include: [
+                {
+                    model: db.infoc_nws_tb_categoria,
+                    as: 'id_categoria_infoc_nws_tb_categorium',
+                    required: true
+                }
+            ]
          });
         resp.send(r);
 
