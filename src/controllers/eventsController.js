@@ -311,8 +311,16 @@ app.get('/highlighted', async (req, resp) => {
                 }
             ],
             })
-        
-            resp.send({qtd: r.length});
+
+            let qtd = r.length;
+            
+            
+            resp.send({
+                items: r,
+                qtd: qtd,
+                wpage: page
+            });
+
     } catch(e) {
         resp.send({ erro: e.toString() })
     }
