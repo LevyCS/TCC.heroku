@@ -295,6 +295,7 @@ app.get('/emdestaque', async (req,resp) => {
             attributes: [
                 [fn('count', 1), 'qtd'],
                 [col('infoc_nws_tb_venda_items.id_evento'), 'id_evento'],
+                ['id_evento', 'id_evento'],
                 ['nm_evento', 'nomevento'],
                 ['ds_elenco', 'elenco'],
                 ['ds_classificacao', 'classificacao'],
@@ -335,6 +336,7 @@ app.get('/emdestaque', async (req,resp) => {
 
 function camps() {
     return [
+        ['id_evento', 'id_evento'],
         ['nm_evento', 'nomevento'],
         ['ds_elenco', 'elenco'],
         ['ds_classificacao', 'classificacao'],
