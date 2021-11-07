@@ -122,7 +122,7 @@ app.get('/login', async(req, resp) => {
         if (confirm.ds_senha != req.query.senha)
             return resp.send( {erro: "Senha incorreta "})
         
-        let r = await db.infoc_nws_tb_usuario.findOne( {where: { id_usuario: confirm.id_usuario }} );
+        let r = await db.infoc_nws_tb_usuario.findOne( {where: { id_usuario: confirm.id_usuario }});
         resp.send(r);
     }
     catch (e) { 
