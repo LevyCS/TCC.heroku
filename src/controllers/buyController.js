@@ -58,7 +58,7 @@ app.post ('/event', async (req, resp) => {
 
         req.body.sellingItems.map(async (item) => {
             let createSellingItems = await db.infoc_nws_tb_venda_item.create({
-                id_calendario_item: item.calendary_item,
+                id_calendario_item: item,
                 id_venda: createSelling.id_venda,
                 ds_qrcode: "nseikkkk"
             })
