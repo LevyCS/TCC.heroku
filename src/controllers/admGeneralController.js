@@ -6,9 +6,6 @@ const { Op, col, fn } = Sequelize;
 import express from "express";
 const app = express.Router();
 
-
-
-
 app.get('/confirmTicket', async (req,resp) => { 
     const vendas = await db.infoc_nws_tb_venda.findAll({
         where: {
@@ -56,21 +53,40 @@ app.get('/confirmTicket', async (req,resp) => {
 });
 
 
-app.put('/confirmTicket/:idVenda', async (req,resp) => { 
-    const { aprovado } = req.body;
-    const { idVenda  } = req.params;
+app.put('/confirmTicket', async (req,resp) => { 
+    const aprovado = Number(req.query.number);
+    const idVenda = Number(req.query.id);
+
+    console.log(aprovado)
+    console.log(idVenda)
      
     try { 
-        const r = await db.infoc_nws_tb_venda.update({
-            'ds_situacao': aprovado === true ? 'Aprovado' : 'Reprovado'
-        }, {
-            where: { id_venda: idVenda }
-        })
+
+        if( aprovado === 1) {
+            const r = await db.infoc_nws_tb_venda.update({
+                'ds_situacao':  'Aprovado'
+    
+            }, {
+                where: { id_venda: idVenda }
+            })
+
+            console.log(r);
+            
+        } else if ( aprovado === 0){
+            const f = await db.infoc_nws_tb_venda.update({
+                'ds_situacao': 'Reprovado'
+    
+            }, {
+                where: { id_venda: idVenda }
+            })
+        }
 
         resp.sendStatus(200);
+
     } catch (e) { 
         resp.send({ erro: e.toString() })
     }
+
 })
 
 
