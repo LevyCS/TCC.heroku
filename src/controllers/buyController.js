@@ -38,13 +38,19 @@ app.post ('/event', async (req, resp) => {
         let { cardNumber, cardOwner, cvc, validity, cpf } = req.body.creditCard;
         let { userId, paymentMethod } = req.body.selling;
 
-        validity = validity.split('/')
+        
+
+        if (!validity) 
+            return resp.send({ erro: "vencimento inválido"})
+        
+        if (cvc.length < 3)
+            return resp.send({erro: "cvc inválido"})
 
         let createCreditcard = await db.infoc_nws_tb_cartao.create({
             nr_cartao: cardNumber,
             nm_titular: cardOwner,
             ds_cvc: cvc,
-            dt_vencimento: new Date(`20${validity[1]}-${validity[0]}-01`),
+            dt_vencimento: new Date(`${validity}-01`),
             ds_cpf: cpf
         })
 
