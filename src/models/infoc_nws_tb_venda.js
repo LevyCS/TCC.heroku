@@ -33,7 +33,11 @@ export default class infoc_nws_tb_venda extends Model {
         model: 'infoc_nws_tb_cartao',
         key: 'id_cartao'
       }
-    }
+    },
+    dt_inclusao: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
   }, {
     sequelize,
     tableName: 'infoc_nws_tb_venda',

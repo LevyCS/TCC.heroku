@@ -227,4 +227,66 @@ app.get('/management', async (req, resp) => {
     }
 })
 
+app.get('/userTickets', async (req, resp) => {
+    try {
+        let r = await db.infoc_nws_tb_venda_item.findAll({
+            where: {'$id_venda_infoc_nws_tb_venda.id_usuario$': req.query.id},
+            attributes: [
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.id_evento'), 'id_evento'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.nm_evento'), 'nomevento'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_elenco'), 'elenco'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_classificacao'), 'classificacao'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_duracao'), 'duracao'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_evento'), 'sinopse'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_genero'), 'gênero'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.img_capa'), 'imagemcapa'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.vl_ingresso'), 'preco'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_local'), 'local'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.dt_min'), 'dataminima'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.dt_max'), 'datamaxima'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.img_fundo'), 'imagemfundo'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.img_sec'), 'imagemsecundaria'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.ds_genero'), 'genero'],
+                [col('id_calendario_item_infoc_nws_tb_calendario_item.id_calendario_infoc_nws_tb_calendario.id_evento_infoc_nws_tb_evento.id_categoria_infoc_nws_tb_categorium.ds_tema'), 'ds_tema'],
+                [col('id_venda_infoc_nws_tb_venda.ds_situacao'), 'situacao']
+            ],
+            include: [
+                {
+                    model: db.infoc_nws_tb_venda,
+                    as: 'id_venda_infoc_nws_tb_venda',
+                    required: true
+                },
+                {
+                    model: db.infoc_nws_tb_calendario_item,
+                    as: 'id_calendario_item_infoc_nws_tb_calendario_item',
+                    required: true,
+                    include: [
+                        {
+                            model: db.infoc_nws_tb_calendario,
+                            as: 'id_calendario_infoc_nws_tb_calendario',
+                            required: true,
+                            include: [
+                                {
+                                    model: db.infoc_nws_tb_evento,
+                                    as: 'id_evento_infoc_nws_tb_evento',
+                                    required: true,
+                                    include: [
+                                        {
+                                            model: db.infoc_nws_tb_categoria,
+                                            as: 'id_categoria_infoc_nws_tb_categorium',
+                                            required: true
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        })
+
+        resp.send(r);
+    } catch (e) { resp.send({erro: e.toString()})}
+})
+
 export default app;

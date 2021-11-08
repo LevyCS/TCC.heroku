@@ -30,10 +30,6 @@ export default class infoc_nws_tb_venda_item extends Model {
         key: 'id_calendario_item'
       }
     },
-    dt_inclusao: {
-      type: DataTypes.DATE,
-      allowNull: true
-    }
   }, {
     sequelize,
     tableName: 'infoc_nws_tb_venda_item',
