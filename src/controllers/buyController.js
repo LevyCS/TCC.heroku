@@ -38,8 +38,6 @@ app.post ('/event', async (req, resp) => {
         let { cardNumber, cardOwner, cvc, validity, cpf } = req.body.creditCard;
         let { userId, paymentMethod } = req.body.selling;
 
-        
-
         if (!validity) 
             return resp.send({ erro: "vencimento inválido"})
         
