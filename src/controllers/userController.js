@@ -227,6 +227,8 @@ app.get('/management', async (req, resp) => {
              ]
          })
 
+         console.log(criteria)
+
          resp.send(management)
 
     } catch (e) { 

@@ -9,7 +9,7 @@ const app = express.Router();
 app.get('/confirmTicket', async (req,resp) => { 
     const vendas = await db.infoc_nws_tb_venda.findAll({
         where: {
-            'ds_situacao': 'Aguardando'
+            'ds_situacao': 'Aguardando confirmação'
         },
         include: [
             {
@@ -90,68 +90,9 @@ app.put('/confirmTicket', async (req,resp) => {
 })
 
 
-// app.get('/relatorios', async (req,resp) => {
-//     try {
-//         let r = await db.infoc_nws_tb_categoria.findAll({
-//             group: [
-//                 col('id_categoria')
-//             ],
-//             attributes: [
-//                 [fn('count', 1), 'qtd'],
-//                 ['ds_tema', 'categoria']
-//             ],
-//             include: [{
-//                 model: db.infoc_nws_tb_evento,
-//                 as: 'infoc_nws_tb_eventos',
-//                 required: true,
-//                 attributes: [],
-//                 include: [{
-//                     model: db.infoc_nws_tb_venda,
-//                     as: 'infoc_nws_tb_evento_venda',
-//                     required: true,
-//                     attributes: []
-//                 }]
-//             }]
-//         })
-        
-//         resp.send(r);
-
-//     } catch (e) {
-//         resp.send({ erro: e.toString() })
-//     }
-// })
-
-function weeklydate(data) {
-    var date = new Date(data);
-    date.setDate(date.getDate() - 7);
-    console.log(date);
-}
-
-function monthlydate(data) {
-    var date = new Date(data);
-    date.setDate(date.getDate() - 30);
-    console.log(date);
-}
-
-function semestrallydate(data) {
-    var date = new Date(data);
-    date.setDate(date.getDate() - 183);
-    console.log(date);
-}
-
-function yearlydate(data) {
-    var date = new Date(data);
-    date.setDate(date.getDate() - 365);
-    console.log(date);
-}
-
 app.get('/relatorios', async (req,resp) => {
     try {
-
-        let tipo = req.query.type;
-        let inicio = new Date();
-        let final = new Date();
-
+        
         tipo = tipo.toLowerCase();
 
         if(tipo == 'semanal') {
