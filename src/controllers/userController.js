@@ -5,6 +5,7 @@ import express from "express";
 const app = express.Router();
 
 import Sequelize from 'sequelize';
+import { ValidateEmptyNullCamps } from "../components/validation/validation.js";
 
 const { Op, col, fn } = Sequelize;
 
@@ -80,8 +81,14 @@ app.put('/update/:id', async (req, resp) => {
 app.post('/create', async(req, resp) => {
     try {
         let json = req.body;
-        if (json.nmUsu == "" || json.nmUsu == null || json.cpf == ""  || json.cpf == null || json.email == "" || json.email == null || json.username == "" || json.username == null || json.senha == "" || json.senha == null || json.nascimento == "" || json.nascimento == null ) 
+        if (ValidateEmptyNullCamps(json)) 
             return resp.send( {erro: "Todos os campos são obrigatórios "})
+
+        if(json.nmUsu.lenght <= 3)
+            return resp.send({erro: "Nome precisa conter mais de 3 caracteres"})
+
+        if(!json.email.includes('@'))
+            return resp.send({erro: "email inválido"})
 
         let validacaoCpf = await db.infoc_nws_tb_usuario.findOne({where: {ds_cpf: json.cpf}})
         if (validacaoCpf != null)

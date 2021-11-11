@@ -38,6 +38,8 @@ export default function initModels(sequelize) {
   infoc_nws_tb_venda.hasMany(infoc_nws_tb_pix, { as: "infoc_nws_tb_pixes", foreignKey: "id_venda"});
   infoc_nws_tb_venda_item.belongsTo(infoc_nws_tb_venda, { as: "id_venda_infoc_nws_tb_venda", foreignKey: "id_venda"});
   infoc_nws_tb_venda.hasMany(infoc_nws_tb_venda_item, { as: "infoc_nws_tb_venda_items", foreignKey: "id_venda"});
+  infoc_nws_tb_venda.belongsTo(infoc_nws_tb_evento, {as: "infoc_nws_tb_venda_evento", foreignKey: "id_evento"});
+  infoc_nws_tb_evento.hasMany(infoc_nws_tb_venda, {as: "infoc_nws_tb_evento_venda", foreignKey: "id_evento"})
 
   return {
     
