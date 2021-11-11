@@ -169,8 +169,8 @@ app.get('/relatorios', async (req,resp) => {
 
         let r = await db.infoc_nws_tb_categoria.findAll({
             where: {
-                'infoc_nws_tb_eventos.infoc_nws_tb_evento_venda.dt_inclusao': {[Op.gt]: inicio},
-                'infoc_nws_tb_eventos.infoc_nws_tb_evento_venda.dt_inclusao': {[Op.lt]: final}
+                '$infoc_nws_tb_eventos.infoc_nws_tb_evento_venda.dt_inclusao$': {[Op.gt]: inicio},
+                '$infoc_nws_tb_eventos.infoc_nws_tb_evento_venda.dt_inclusao$': {[Op.lt]: final}
             },
             group: [
                 col('id_categoria')
