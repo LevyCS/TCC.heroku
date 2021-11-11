@@ -90,23 +90,23 @@ app.put('/confirmTicket', async (req,resp) => {
 })
 
 
-app.get('/relatorios', async (req,resp) => {
-    try {
-        let r = await db.infoc_nws_tb_categoria.findAll({
-            group: [
-                col()
-            ],
-            include: [{
-                model: 
-            }]
-        })
+// app.get('/relatorios', async (req,resp) => {
+//     try {
+//         let r = await db.infoc_nws_tb_categoria.findAll({
+//             group: [
+//                 col()
+//             ],
+//             include: [{
+//                 model: 
+//             }]
+//         })
         
-        resp.send(r);
+//         resp.send(r);
 
-    } catch (e) {
-        resp.send({ erro: e.toString() })
-    }
-})
+//     } catch (e) {
+//         resp.send({ erro: e.toString() })
+//     }
+// })
 
 
 app.get('/relatorios', async (req,resp) => {
