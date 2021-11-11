@@ -90,54 +90,51 @@ app.put('/confirmTicket', async (req,resp) => {
 })
 
 
-// app.get('/relatorios', async (req,resp) => {
-//     try {
-//         let r = await db.infoc_nws_tb_categoria.findAll({
-//             group: [
-//                 col()
-//             ],
-//             include: [{
-//                 model: 
-//             }]
-//         })
-        
-//         resp.send(r);
-
-//     } catch (e) {
-//         resp.send({ erro: e.toString() })
-//     }
-// })
-
-
 app.get('/relatorios', async (req,resp) => {
     try {
-        let r = await db.infoc_nws_tb_venda.findAll({
+        
+        tipo = tipo.toLowerCase();
+
+        if(tipo == 'semanal') {
+            inicio = weeklydate(inicio);
+        } else if (tipo == 'mensal') {
+            incio = monthlydate(inicio);
+        } else if (tipo == 'semestral') {
+            inicio = semestrallydate(inicio);
+        } else {
+            inicio = yearlydate(inicio);
+        }
+
+        console.log(inicio);
+        console.log(final);
+
+        let r = await db.infoc_nws_tb_categoria.findAll({
+            where: {
+                'infoc_nws_tb_eventos.infoc_nws_tb_evento_venda.dt_inclusao': {[Op.gt]: inicio},
+                'infoc_nws_tb_eventos.infoc_nws_tb_evento_venda.dt_inclusao': {[Op.lt]: final}
+            },
+            group: [
+                col('id_categoria')
+            ],
+            attributes: [
+                [fn('count', 1), 'qtd'],
+                ['ds_tema', 'categoria']
+            ],
             include: [{
-                model: db.infoc_nws_tb_venda_item,
-                as: 'infoc_nws_tb_venda_items',
+                model: db.infoc_nws_tb_evento,
+                as: 'infoc_nws_tb_eventos',
                 required: true,
                 attributes: [],
                 include: [{
-                    model:  db.infoc_nws_tb_evento,
-                    as: 'infoc_nws_tb_eventos',
+                    model: db.infoc_nws_tb_venda,
+                    as: 'infoc_nws_tb_evento_venda',
                     required: true,
-                    attributes: [],
-                    include: [{
-                        model: db.infoc_nws_tb_categoria,
-                        as: 'id_categoria_infoc_nws_tb_categorium',
-                        required: true,
-                        attributes: []
-                    }]
+                    attributes: []
                 }]
-            }],
-            group: [
-                col('infoc_nws_tb_venda_items.id_categoria')
-            ],
-            attributes: [
-                [fn('count', 1), 'qtdEventos'],
-                [col('infoc_nws_tb_venda_items.id_categoria'), 'categoria']
-            ]
+            }]
         })
+
+        resp.send(r);
 
 
     } catch (e) {
@@ -177,6 +174,8 @@ app.post('/adm', async (req, resp) => {
         })
     } catch (e) {resp.send( {erro: e.toString()})}
 })
+
+
 
 
 export default app;
