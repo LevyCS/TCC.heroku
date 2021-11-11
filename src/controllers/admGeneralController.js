@@ -9,7 +9,7 @@ const app = express.Router();
 app.get('/confirmTicket', async (req,resp) => { 
     const vendas = await db.infoc_nws_tb_venda.findAll({
         where: {
-            'ds_situacao': 'Aguardando'
+            'ds_situacao': 'Aguardando confirmação'
         },
         include: [
             {
