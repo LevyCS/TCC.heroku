@@ -195,7 +195,15 @@ app.put('/changepassword', async(req, resp) => {
 app.get('/log', async(req, resp) => { 
     try { 
 
-        let r = await db.infoc_nws_tb_usuario.findAll();
+        let r = await db.infoc_nws_tb_usuario.findAll({ 
+            // attributes: [
+            //     ['id_usuario', 'id'], 
+            //     ['nm_usuario', 'nomeUsuario'], 
+            //     ['dt_nascimento', 'nascimento'], 
+            //     ['ds_email', 'email'], 
+            //     ['ds_cpf', 'cpf']
+            // ]
+        });
         resp.send(r);
 
     } catch (e) { 
@@ -224,7 +232,7 @@ app.get('/management', async (req, resp) => {
             },
             order: [
                  criteria
-             ]
+             ], 
          })
 
          console.log(criteria)
