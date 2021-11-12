@@ -1,5 +1,6 @@
 import db from "../db.js";
 
+import multer from 'multer'
 import Sequelize from 'sequelize';
 const { Op, col, fn } = Sequelize;
 
@@ -7,7 +8,6 @@ const { Op, col, fn } = Sequelize;
 import express from "express";
 
 const app = express.Router();
-
 
 app.get('/crud', async(req, resp) => {
     try {
@@ -53,12 +53,24 @@ app.get('/crud', async(req, resp) => {
     }
 })
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+    }
+  })
+  
+  const upload = multer({ storage: storage })
 
 
 app.post('/crud', async(req, resp) => {
     try {
-        let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, genero, imgCapa, imgFundo, imgSec } = req.body;
-        
+        let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, genero } = req.body;
+        let {  imgCapa, imgFundo, imgSec } = req.file
+
         categoria = categoria.toLowerCase();
         
         let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}});
@@ -111,6 +123,11 @@ app.post('/crud', async(req, resp) => {
         resp.send( { erro: e.toString()})
     }
 })
+
+app.get('/produto/image', async (req, resp) => {
+    let dirname = path.resolve();
+    resp.sendFile(req.query.imagem, { root: path.join(dirname) });
+  })
 
 
 
