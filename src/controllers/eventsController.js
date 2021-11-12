@@ -86,7 +86,7 @@ app.post('/crud', async(req, resp) => {
             img_capa: imgCapa,
             img_fundo: imgFundo,
             img_sec: imgSec,
-            ds_genero: genero,
+            ds_genero: genero,  
             bt_ativo: true,
             dt_inclusao: new Date()
         })
