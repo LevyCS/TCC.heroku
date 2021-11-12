@@ -80,8 +80,7 @@ app.put('/update/:id', async (req, resp) => {
 
 app.post('/create', async(req, resp) => {
     try {
-        let json = req.body;
-        
+        let json = req.body;      
        
         if (json.nmUsu.length <= 3) 
             return resp.send({erro: "O nome precisa ter mais de 3 caracteres"})
