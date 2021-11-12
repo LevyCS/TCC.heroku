@@ -80,16 +80,10 @@ app.put('/update/:id', async (req, resp) => {
 
 app.post('/create', async(req, resp) => {
     try {
-        let json = req.body;
-<<<<<<< HEAD
-        if (ValidateEmptyNullCamps(json)) 
-            return resp.send( {erro: "Todos os campos são obrigatórios "})
-=======
-        
+        let json = req.body;      
        
         if (json.nmUsu.length <= 3) 
             return resp.send({erro: "O nome precisa ter mais de 3 caracteres"})
->>>>>>> 1a6cdb14470b72776e3de7734dcc6b19e8f031a0
 
         if(json.nmUsu.lenght <= 3)
             return resp.send({erro: "Nome precisa conter mais de 3 caracteres"})
