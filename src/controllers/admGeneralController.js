@@ -89,22 +89,43 @@ app.put('/confirmTicket', async (req,resp) => {
 
 })
 
+function weeklydate (date) {
+    var dt = new Date(date);
+    dt.setDate(dt.getDate() - 7);
+    return dt;
+}
+function monthlydate (date) {
+    var dt = new Date(date);
+    dt.setDate(dt.getDate() - 30);
+    return dt;
+}
+function semestrallydate (date) {
+    var dt = new Date(date);
+    dt.setDate(dt.getDate() - 183);
+    return dt;
+}
+function yearlydate (date) {
+    var dt = new Date(date);
+    dt.setDate(dt.getDate() - 365);
+    return dt;
+}
 
 app.get('/relatorios', async (req,resp) => {
     try {
-        
-        tipo = tipo.toLowerCase();
+
+        let tipo = req.query.type;
+        let inicio = new Date();
+        let final = new Date();
 
         if(tipo == 'semanal') {
             inicio = weeklydate(inicio);
         } else if (tipo == 'mensal') {
-            incio = monthlydate(inicio);
+            inicio = monthlydate(inicio);
         } else if (tipo == 'semestral') {
             inicio = semestrallydate(inicio);
         } else {
             inicio = yearlydate(inicio);
         }
-
         console.log(inicio);
         console.log(final);
 
@@ -133,6 +154,7 @@ app.get('/relatorios', async (req,resp) => {
                 }]
             }]
         })
+        console.log(r);
 
         resp.send(r);
 
