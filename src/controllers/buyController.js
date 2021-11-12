@@ -71,6 +71,14 @@ app.post ('/event', async (req, resp) => {
                 tp_pagamento: paymentMethod,
                 dt_inclusao: new Date()
             })
+
+            req.body.sellingItems.map(async (item) => {
+                let createSellingItems = await db.infoc_nws_tb_venda_item.create({
+                    id_calendario_item: item,
+                    id_venda: createSelling.id_venda,
+                    ds_qrcode: "nseikkkk"
+                })
+            })
         }
         else {
             let createSelling = await db.infoc_nws_tb_venda.create({
@@ -81,15 +89,15 @@ app.post ('/event', async (req, resp) => {
                 tp_pagamento: paymentMethod,
                 dt_inclusao: new Date()
             })
-        }
 
-        req.body.sellingItems.map(async (item) => {
-            let createSellingItems = await db.infoc_nws_tb_venda_item.create({
-                id_calendario_item: item,
-                id_venda: createSelling.id_venda,
-                ds_qrcode: "nseikkkk"
+            req.body.sellingItems.map(async (item) => {
+                let createSellingItems = await db.infoc_nws_tb_venda_item.create({
+                    id_calendario_item: item,
+                    id_venda: createSelling.id_venda,
+                    ds_qrcode: "nseikkkk"
+                })
             })
-        })
+        }
     
         resp.sendStatus(200);
 
