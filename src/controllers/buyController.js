@@ -1,7 +1,7 @@
 import db from "../db.js";
 
-
 import express from "express";
+import { ValidateEmptyNullCamps } from "../components/validation/validation.js";
 const app = express.Router();
 
 
@@ -36,7 +36,14 @@ app.get('/eventhour/:id', async (req, resp) => {
 app.post ('/event', async (req, resp) => {
     try {
         let { cardNumber, cardOwner, cvc, validity, cpf } = req.body.creditCard;
-        let { userId, paymentMethod } = req.body.selling;
+        let { userId, paymentMethod, eventId } = req.body.selling;
+        console.log(req.body)
+            
+        if(!ValidateEmptyNullCamps(req.body.selling))    
+            return resp.send({ erro: "Todos os campos são obrigatórios"})
+
+        if (/\d/.test(cardOwner))
+            return resp.send( {erro: "O portador do cartão deve contem somente letras"})
 
         if (!validity) 
             return resp.send({ erro: "vencimento inválido"})
@@ -44,21 +51,37 @@ app.post ('/event', async (req, resp) => {
         if (cvc.length < 3)
             return resp.send({erro: "cvc inválido"})
 
-        let createCreditcard = await db.infoc_nws_tb_cartao.create({
-            nr_cartao: cardNumber,
-            nm_titular: cardOwner,
-            ds_cvc: cvc,
-            dt_vencimento: new Date(`${validity}-01`),
-            ds_cpf: cpf
-        })
+        if(paymentMethod == "cartao") {
+            if(!ValidateEmptyNullCamps(req.body.creditCard))    
+                return resp.send({ erro: "Todos os campos são obrigatórios"})
 
-        let createSelling = await db.infoc_nws_tb_venda.create({
-            id_usuario: userId,
-            id_cartao: createCreditcard.id_cartao,
-            ds_situacao: "aguardando",
-            tp_pagamento: paymentMethod,
-            dt_inclusao: new Date()
-        })
+            let createCreditcard = await db.infoc_nws_tb_cartao.create({
+                nr_cartao: cardNumber,
+                nm_titular: cardOwner,
+                ds_cvc: cvc,
+                dt_vencimento: new Date(`${validity}-01`),
+                ds_cpf: cpf
+            })
+            
+            let createSelling = await db.infoc_nws_tb_venda.create({
+                id_usuario: userId,
+                id_cartao: createCreditcard.id_cartao,
+                id_evento: eventId,
+                ds_situacao: "aguardando",
+                tp_pagamento: paymentMethod,
+                dt_inclusao: new Date()
+            })
+        }
+        else {
+            let createSelling = await db.infoc_nws_tb_venda.create({
+                id_usuario: userId,
+                id_cartao: null,
+                id_evento: eventId,
+                ds_situacao: "aguardando",
+                tp_pagamento: paymentMethod,
+                dt_inclusao: new Date()
+            })
+        }
 
         req.body.sellingItems.map(async (item) => {
             let createSellingItems = await db.infoc_nws_tb_venda_item.create({

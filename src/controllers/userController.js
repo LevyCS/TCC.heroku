@@ -81,12 +81,23 @@ app.put('/update/:id', async (req, resp) => {
 app.post('/create', async(req, resp) => {
     try {
         let json = req.body;
+<<<<<<< HEAD
         if(!validateEmptyValues(json)) {
             return resp.send({erro: "Todos os campos são obrigatórios"})
         }
 
         if (json.nmUsu.length <= 3) 
             return resp.send({erro: "O nome precisa ter mais de 3 caracteres"})
+=======
+        if (ValidateEmptyNullCamps(json)) 
+            return resp.send( {erro: "Todos os campos são obrigatórios "})
+>>>>>>> 8534052a284a7ddd67be3a391da36e29f2ae3450
+
+        if(json.nmUsu.lenght <= 3)
+            return resp.send({erro: "Nome precisa conter mais de 3 caracteres"})
+
+        if(!json.email.includes('@'))
+            return resp.send({erro: "email inválido"})
 
         let validacaoCpf = await db.infoc_nws_tb_usuario.findOne({where: {ds_cpf: json.cpf}})
         if (!validacaoCpf)
@@ -193,7 +204,15 @@ app.put('/changepassword', async(req, resp) => {
 app.get('/log', async(req, resp) => { 
     try { 
 
-        let r = await db.infoc_nws_tb_usuario.findAll();
+        let r = await db.infoc_nws_tb_usuario.findAll({ 
+            // attributes: [
+            //     ['id_usuario', 'id'], 
+            //     ['nm_usuario', 'nomeUsuario'], 
+            //     ['dt_nascimento', 'nascimento'], 
+            //     ['ds_email', 'email'], 
+            //     ['ds_cpf', 'cpf']
+            // ]
+        });
         resp.send(r);
 
     } catch (e) { 
@@ -222,8 +241,10 @@ app.get('/management', async (req, resp) => {
             },
             order: [
                  criteria
-             ]
+             ], 
          })
+
+         console.log(criteria)
 
          resp.send(management)
 

@@ -1,5 +1,9 @@
 import db from "../db.js";
 
+import path from 'path'
+import fs from 'fs';
+import multer from 'multer';
+
 import Sequelize from 'sequelize';
 const { Op, col, fn } = Sequelize;
 
@@ -7,7 +11,6 @@ const { Op, col, fn } = Sequelize;
 import express from "express";
 
 const app = express.Router();
-
 
 app.get('/crud', async(req, resp) => {
     try {
@@ -53,21 +56,31 @@ app.get('/crud', async(req, resp) => {
     }
 })
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+    }
+})
+  
+  const upload = multer({ storage: storage })
 
 
-app.post('/crud', async(req, resp) => {
+app.post('/crud', upload.array('images', 3), async(req, resp) => {
     try {
-        let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, genero, imgCapa, imgFundo, imgSec } = req.body;
-        
+        let { nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, genero} = req.body;
+        let imgCapa = req.files[0].path
+        let imgFundo = req.files[1].path
+        let imgSec= req.files[2].path
+
+        console.log(req.files[0].path);
+ 
         categoria = categoria.toLowerCase();
+        let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}})
         
-        let category = await db.infoc_nws_tb_categoria.findOne({ where: {ds_tema: categoria}});
-    
-        let validate = [nmEvento, categoria, duracao, classificacao, valorIngresso, local, dtMin, dtMax, elenco, descEvento, genero, imgCapa, imgFundo, imgSec]
-        if (validate.some(item => {
-            item == "" || item == null
-        }))
-            return resp.send( {erro: "Todos os campos são obrigatórios"} )
 
         if (isNaN(valorIngresso) || valorIngresso <= 0)
             return resp.send( { erro: "O Valor do ingresso deve ser um número positivo"})
@@ -86,12 +99,12 @@ app.post('/crud', async(req, resp) => {
             img_capa: imgCapa,
             img_fundo: imgFundo,
             img_sec: imgSec,
-            ds_genero: genero,
+            ds_genero: genero,  
             bt_ativo: true,
             dt_inclusao: new Date()
         })
 
-        let createCalendary = req.body.datas.map(async item => {
+        let createCalendary = JSON.parse(req.body.datas).map(async item => {
             let dates = await db.infoc_nws_tb_calendario.create({
                 id_evento: createEvent.id_evento,
                 dt_evento: item.data
@@ -110,6 +123,11 @@ app.post('/crud', async(req, resp) => {
     } catch (e) {
         resp.send( { erro: e.toString()})
     }
+})
+
+app.get('/event/image', async (req, resp) => {
+    let dirname = path.resolve();
+    resp.sendFile(req.query.imagem, { root: path.join(dirname) });
 })
 
 
