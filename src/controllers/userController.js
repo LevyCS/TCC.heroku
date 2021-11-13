@@ -1,6 +1,9 @@
 import db from "../db.js";
 import nodemailer from 'nodemailer'
 
+import path from 'path'
+import multer from "multer";
+
 import express from "express";
 const app = express.Router();
 
@@ -78,18 +81,35 @@ app.put('/update/:id', async (req, resp) => {
     } catch (e) { resp.send( {erro: e.toString()})}
 })
 
-app.post('/create', async(req, resp) => {
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+    }
+})
+  
+const upload = multer({ storage: storage })
+
+app.post('/create', upload.single('imagem'), async(req, resp) => {
     try {
-        let json = req.body;      
+        let json = req.body;
+        delete json.imagem;  
+        console.log(json.email.substr(json.email.indexOf('@'), json.email.length).length)
+
+        if(!validateEmptyValues(json))
+            return resp.send({erro: "Todos os campos são obrigatórios"})
        
-        if (json.nmUsu.length <= 3) 
-            return resp.send({erro: "O nome precisa ter mais de 3 caracteres"})
+        if(isNaN(Number(json.cpf))) 
+            return resp.send({erro: "O cpf deve estar no formato só números"})
 
         if(json.nmUsu.lenght <= 3)
             return resp.send({erro: "Nome precisa conter mais de 3 caracteres"})
 
-        if(!json.email.includes('@'))
-            return resp.send({erro: "email inválido"})
+        if(!json.email.includes('@') || json.email.substr(json.email.indexOf('@'), json.email.length).length <= 3 )
+            return resp.send({erro: "Email inválido, precisa conter um dominio"})
 
         let validacaoCpf = await db.infoc_nws_tb_usuario.findOne({where: {ds_cpf: json.cpf}})
         if (validacaoCpf)
@@ -102,17 +122,20 @@ app.post('/create', async(req, resp) => {
         let validacaoUsername = await db.infoc_nws_tb_usuario.findOne({where: {ds_username: json.username}})
         if (validacaoUsername != null)
             return resp.send({ erro: "Username já cadastrado"})
+
+        if (!req.file)
+            return resp.send({erro: "É necessário uma imagem"})
         
-        let r = await db.infoc_nws_tb_usuario.create({
-            nm_usuario: json.nmUsu,
-            ds_cpf: json.cpf,
-            ds_email: json.email,
-            ds_username: json.username,
-            ds_senha: json.senha,
-            dt_nascimento: json.nascimento,
-            img_perfil: json.imagem,
-            bt_adm: false
-        })
+        // let r = await db.infoc_nws_tb_usuario.create({
+        //     nm_usuario: json.nmUsu,
+        //     ds_cpf: json.cpf,
+        //     ds_email: json.email,
+        //     ds_username: json.username,
+        //     ds_senha: json.senha,
+        //     dt_nascimento: json.nascimento,
+        //     img_perfil: req.file.path,
+        //     bt_adm: false
+        // })
 
         resp.sendStatus(200);
 
@@ -123,6 +146,11 @@ app.post('/create', async(req, resp) => {
 
 app.get('/login', async(req, resp) => {
     try {
+        
+    //    console.log(!validateEmptyValues(req.query))
+        if(!validateEmptyValues(req.query)) 
+            return resp.send({erro: "Todos os campos são obrigatórios"})
+
         let confirm = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: req.query.mail}});
         if (confirm == null) 
             return resp.send( {erro: "Usuário não cadastrado"})

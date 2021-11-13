@@ -1,7 +1,6 @@
 import db from "../db.js";
 
 import express from "express";
-import { ValidateEmptyNullCamps } from "../components/validation/validation.js";
 const app = express.Router();
 
 

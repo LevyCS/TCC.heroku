@@ -1,7 +1,6 @@
 import db from "../db.js";
 
 import path from 'path'
-import fs from 'fs';
 import multer from 'multer';
 
 import Sequelize from 'sequelize';
@@ -66,7 +65,7 @@ const storage = multer.diskStorage({
     }
 })
   
-  const upload = multer({ storage: storage })
+const upload = multer({ storage: storage })
 
 
 app.post('/crud', upload.array('images', 3), async(req, resp) => {
