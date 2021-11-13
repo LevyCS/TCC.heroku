@@ -97,7 +97,6 @@ app.post('/create', upload.single('imagem'), async(req, resp) => {
     try {
         let json = req.body;
         delete json.imagem;  
-        console.log(json.email.substr(json.email.indexOf('@'), json.email.length).length)
 
         if(!validateEmptyValues(json))
             return resp.send({erro: "Todos os campos são obrigatórios"})
@@ -126,16 +125,16 @@ app.post('/create', upload.single('imagem'), async(req, resp) => {
         if (!req.file)
             return resp.send({erro: "É necessário uma imagem"})
         
-        // let r = await db.infoc_nws_tb_usuario.create({
-        //     nm_usuario: json.nmUsu,
-        //     ds_cpf: json.cpf,
-        //     ds_email: json.email,
-        //     ds_username: json.username,
-        //     ds_senha: json.senha,
-        //     dt_nascimento: json.nascimento,
-        //     img_perfil: req.file.path,
-        //     bt_adm: false
-        // })
+        let r = await db.infoc_nws_tb_usuario.create({
+            nm_usuario: json.nmUsu,
+            ds_cpf: json.cpf,
+            ds_email: json.email,
+            ds_username: json.username,
+            ds_senha: json.senha,
+            dt_nascimento: json.nascimento,
+            img_perfil: req.file.path,
+            bt_adm: false
+        })
 
         resp.sendStatus(200);
 
@@ -143,6 +142,11 @@ app.post('/create', upload.single('imagem'), async(req, resp) => {
         resp.send( {erro: e.toString()})
     }
 });
+
+app.get('/image', async (req, resp) => {
+    let dirname = path.resolve();
+    resp.sendFile(req.query.imagem, { root: path.join(dirname) });
+})
 
 app.get('/login', async(req, resp) => {
     try {
@@ -263,8 +267,6 @@ app.get('/management', async (req, resp) => {
                  criteria
              ], 
          })
-
-         console.log(criteria)
 
          resp.send(management)
 

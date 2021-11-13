@@ -56,9 +56,6 @@ app.get('/confirmTicket', async (req,resp) => {
 app.put('/confirmTicket', async (req,resp) => { 
     const aprovado = Number(req.query.number);
     const idVenda = Number(req.query.id);
-
-    console.log(aprovado)
-    console.log(idVenda)
      
     try { 
 
@@ -70,7 +67,6 @@ app.put('/confirmTicket', async (req,resp) => {
                 where: { id_venda: idVenda }
             })
 
-            console.log(r);
             
         } else if ( aprovado === 0){
             const f = await db.infoc_nws_tb_venda.update({
@@ -126,8 +122,6 @@ app.get('/relatorios', async (req,resp) => {
         } else {
             inicio = yearlydate(inicio);
         }
-        console.log(inicio);
-        console.log(final);
 
         let r = await db.infoc_nws_tb_categoria.findAll({
             where: {
@@ -154,7 +148,6 @@ app.get('/relatorios', async (req,resp) => {
                 }]
             }]
         })
-        console.log(r);
 
         resp.send(r);
 
