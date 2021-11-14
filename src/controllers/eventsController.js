@@ -14,9 +14,9 @@ const app = express.Router();
 app.get('/crud', async(req, resp) => {
     try {
         let {nome, categoria} = req.query;
-    
+
         function filterChoose() {
-            if(categoria != null && categoria != "")
+            if(categoria != null && categoria != "" && categoria != undefined)
                 return {'$id_categoria_infoc_nws_tb_categorium.ds_tema$': categoria, bt_ativo: true};
             else if (nome != null && nome != "")
                 return {nm_evento: {[Op.like]: `%${nome}%`}, bt_ativo: true};
@@ -24,7 +24,9 @@ app.get('/crud', async(req, resp) => {
                 return {bt_ativo: true}
             }
         }
-    
+
+        
+        console.log(filterChoose())
         let events = await db.infoc_nws_tb_evento.findAll({
             where: filterChoose(), order: [['id_evento', 'desc']],
             include: [
@@ -57,7 +59,7 @@ app.get('/crud', async(req, resp) => {
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'uploads/')
+      cb(null, 'uploads/events')
     },
     filename: function (req, file, cb) {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)

@@ -83,7 +83,7 @@ app.put('/update/:id', async (req, resp) => {
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'uploads/')
+      cb(null, 'uploads/users')
     },
     filename: function (req, file, cb) {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
