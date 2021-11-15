@@ -108,7 +108,7 @@ app.put('/update/:id', upload.single('imagem'), async (req, resp) => {
         let validacaoUsername = await db.infoc_nws_tb_usuario.findOne({where: {ds_username: json.username}})
         if (validacaoUsername != null && validacaoUsername.id_usuario != req.params.id)
             return resp.send({ erro: "Username já cadastrado"})
-
+            
         if (!req.file) {
             let update = await db.infoc_nws_tb_usuario.update({
                 nm_usuario: json.nmUsu,
