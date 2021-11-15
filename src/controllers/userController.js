@@ -84,12 +84,15 @@ app.put('/update/:id', upload.single('imagem'), async (req, resp) => {
 
         if(!validateEmptyValues(json))
             return resp.send({erro: "Todos os campos são obrigatórios"})
-       
-        if(isNaN(Number(json.cpf))) 
-            return resp.send({erro: "O cpf deve estar no formato só números"})
 
         if(json.nmUsu.lenght <= 3)
             return resp.send({erro: "Nome precisa conter mais de 3 caracteres"})
+
+        if(isNaN(Number(json.cpf))) 
+            return resp.send({erro: "O cpf deve estar no formato só números"})
+
+        if(json.cpf.lenght != 11)
+            return resp.send({erro: "Cpf deve contem 11 número"})
 
         if(!json.email.includes('@') || json.email.substr(json.email.indexOf('@'), json.email.length).length <= 3 )
             return resp.send({erro: "Email inválido, precisa conter um dominio"})
@@ -139,12 +142,15 @@ app.post('/create', upload.single('imagem'), async(req, resp) => {
 
         if(!validateEmptyValues(json))
             return resp.send({erro: "Todos os campos são obrigatórios"})
-       
-        if(isNaN(Number(json.cpf))) 
-            return resp.send({erro: "O cpf deve estar no formato só números"})
 
         if(json.nmUsu.lenght <= 3)
             return resp.send({erro: "Nome precisa conter mais de 3 caracteres"})
+
+        if(isNaN(Number(json.cpf))) 
+            return resp.send({erro: "O cpf deve estar no formato só números"})
+
+        if(json.cpf.lenght != 11)
+            return resp.send({erro: "Cpf deve contem 11 número"})
 
         if(!json.email.includes('@') || json.email.substr(json.email.indexOf('@'), json.email.length).length <= 3 )
             return resp.send({erro: "Email inválido, precisa conter um dominio"})
