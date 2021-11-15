@@ -64,23 +64,6 @@ app.get('/getall/test', async (req, resp) => {
     return r;
 })
 
-app.put('/update/:id', async (req, resp) => {
-    try {
-        let json = req.body;
-        let update = await db.infoc_nws_tb_usuario.update({
-            nm_usuario: json.nmUsu,
-            ds_cpf: json.cpf,
-            ds_email: json.email,
-            ds_username: json.username,
-            ds_senha: json.senha,
-            dt_nascimento: json.nascimento,
-            img_perfil: json.imagem
-        }, {where: {id_usuario: req.params.id}})
-
-        resp.sendStatus(200);
-    } catch (e) { resp.send( {erro: e.toString()})}
-})
-
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, 'uploads/users')
@@ -92,6 +75,62 @@ const storage = multer.diskStorage({
 })
   
 const upload = multer({ storage: storage })
+
+
+app.put('/update/:id', upload.single('imagem'), async (req, resp) => {
+    try {
+        let json = req.body;
+        delete json.imagem;  
+
+        if(!validateEmptyValues(json))
+            return resp.send({erro: "Todos os campos são obrigatórios"})
+       
+        if(isNaN(Number(json.cpf))) 
+            return resp.send({erro: "O cpf deve estar no formato só números"})
+
+        if(json.nmUsu.lenght <= 3)
+            return resp.send({erro: "Nome precisa conter mais de 3 caracteres"})
+
+        if(!json.email.includes('@') || json.email.substr(json.email.indexOf('@'), json.email.length).length <= 3 )
+            return resp.send({erro: "Email inválido, precisa conter um dominio"})
+
+        let validacaoCpf = await db.infoc_nws_tb_usuario.findOne({where: {ds_cpf: json.cpf}})
+        if (validacaoCpf != null && validacaoCpf.id_usuario != req.params.id)
+            return resp.send( {erro: "Cpf já cadastrado"})
+
+        let validacaoEmail = await db.infoc_nws_tb_usuario.findOne({where: {ds_email: json.email}})
+        if (validacaoEmail != null && validacaoEmail.id_usuario != req.params.id) 
+            return resp.send( { erro: "Email já cadastrado"})
+        
+        let validacaoUsername = await db.infoc_nws_tb_usuario.findOne({where: {ds_username: json.username}})
+        if (validacaoUsername != null && validacaoUsername.id_usuario != req.params.id)
+            return resp.send({ erro: "Username já cadastrado"})
+
+        if (!req.file) {
+            let update = await db.infoc_nws_tb_usuario.update({
+                nm_usuario: json.nmUsu,
+                ds_cpf: json.cpf,
+                ds_email: json.email,
+                ds_username: json.username,
+                ds_senha: json.senha,
+                dt_nascimento: json.nascimento
+            }, {where: {id_usuario: req.params.id}})
+        } else {
+            let update = await db.infoc_nws_tb_usuario.update({
+                nm_usuario: json.nmUsu,
+                ds_cpf: json.cpf,
+                ds_email: json.email,
+                ds_username: json.username,
+                ds_senha: json.senha,
+                dt_nascimento: json.nascimento,
+                img_perfil: req.file.path
+            }, {where: {id_usuario: req.params.id}})
+        }
+
+
+        resp.sendStatus(200);
+    } catch (e) { resp.send( {erro: e.toString()})}
+})
 
 app.post('/create', upload.single('imagem'), async(req, resp) => {
     try {
