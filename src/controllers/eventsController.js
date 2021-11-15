@@ -17,7 +17,7 @@ app.get('/crud', async(req, resp) => {
 
         function filterChoose() {
             if(categoria != null && categoria != "" && categoria != undefined)
-                return {'$id_categoria_infoc_nws_tb_categorium.ds_tema$': categoria, bt_ativo: true};
+                return {ds_genero:{[Op.like]: `%${categoria}%`}, bt_ativo: true};
             else if (nome != null && nome != "")
                 return {nm_evento: {[Op.like]: `%${nome}%`}, bt_ativo: true};
             else {
